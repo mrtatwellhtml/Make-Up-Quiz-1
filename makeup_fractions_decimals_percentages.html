@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Make-Up Quiz &middot; Fractions, Decimals &amp; Percentages — THTI Foundation Mathematics II</title>
+<style>
+:root{
+  --navy:#0f3d5c; --navy2:#14547e; --teal:#0e8f8f; --gold:#f2b705;
+  --bg:#eef3f7; --card:#ffffff; --ink:#1c2b36; --muted:#5b6b78;
+  --good:#1e8e3e; --goodbg:#e6f4ea; --bad:#c5221f; --badbg:#fce8e6;
+  --line:#d7e1ea; --shadow:0 2px 10px rgba(15,61,92,.08);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+.wrap{max-width:860px;margin:0 auto;padding:0 18px 80px}
+header.top{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:26px 18px 22px;box-shadow:var(--shadow)}
+header.top .inner{max-width:860px;margin:0 auto}
+.badge{display:inline-block;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;background:rgba(255,255,255,.15);padding:4px 10px;border-radius:20px;margin-bottom:10px}
+header.top h1{margin:2px 0 6px;font-size:26px}
+header.top p{margin:0;opacity:.9;font-size:14px}
+.howto{background:#fff;border-left:5px solid var(--gold);border-radius:8px;padding:12px 16px;margin:18px 0;box-shadow:var(--shadow);font-size:14px}
+.howto b{color:var(--navy)}
+.scorebar{position:sticky;top:0;z-index:5;margin:14px 0 6px;padding:12px 16px;border-radius:8px;font-size:15px;text-align:center;box-shadow:var(--shadow)}
+.scorebar.idle{background:#fff;color:var(--muted)}
+.scorebar.good{background:var(--goodbg);color:var(--good);border:1px solid #bfe3c6}
+.scorebar.mid{background:#fff7e0;color:#8a6d00;border:1px solid #f0dd9b}
+.scorebar.low{background:var(--badbg);color:var(--bad);border:1px solid #f4c7c3}
+h2.section{margin:30px 0 8px;padding:8px 14px;background:var(--navy);color:#fff;border-radius:8px;font-size:16px;letter-spacing:.3px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:12px 0;box-shadow:var(--shadow);transition:border-color .2s}
+.q.correct{border-color:#bfe3c6;box-shadow:0 0 0 2px #bfe3c6 inset}
+.q.wrong{border-color:#f4c7c3;box-shadow:0 0 0 2px #f4c7c3 inset}
+.qhead{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.qnum{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:28px;background:var(--teal);color:#fff;border-radius:50%;font-weight:700;font-size:14px;padding:0 6px}
+.tag{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--teal);border:1px solid var(--teal);border-radius:12px;padding:1px 8px}
+.reroll{margin-left:auto;background:#f0f7f7;color:var(--teal);border:1px solid #cbe6e6;border-radius:16px;padding:4px 12px;font-size:13px;cursor:pointer}
+.reroll:hover{background:var(--teal);color:#fff}
+.prompt{font-size:16px;margin-bottom:10px}
+.prompt code,.mono{font-family:"Consolas",monospace;background:#f4f7fa;padding:1px 6px;border-radius:5px}
+.choices{display:grid;gap:8px}
+.choice{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;cursor:pointer;transition:background .15s}
+.choice:hover{background:#f4f9fc}
+.choice input{accent-color:var(--teal);width:18px;height:18px}
+.choice .ltr{font-weight:700;color:var(--navy);min-width:18px}
+.choice.mark-correct{background:var(--goodbg);border-color:#bfe3c6}
+.choice.mark-wrong{background:var(--badbg);border-color:#f4c7c3}
+.answerline{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.answerline .unit{color:var(--muted);font-size:15px}
+.answerline .unit.pre{order:-1}
+input.ans{font-size:16px;padding:9px 12px;border:2px solid var(--line);border-radius:8px;width:200px;max-width:60%}
+input.ans:focus{outline:none;border-color:var(--teal)}
+input.ans.good{border-color:var(--good);background:var(--goodbg)}
+input.ans.bad{border-color:var(--bad);background:var(--badbg)}
+.feedback{margin-top:10px;padding:9px 12px;background:#f7fafc;border-radius:8px;font-size:14px;border:1px solid var(--line)}
+.feedback .ok{color:var(--good)}
+.feedback .no{color:var(--bad)}
+.frac{display:inline-flex;flex-direction:column;text-align:center;vertical-align:middle;margin:0 3px;font-size:.9em}
+.frac .top{border-bottom:1.5px solid currentColor;padding:0 4px;line-height:1.1}
+.frac .bot{padding:0 4px;line-height:1.1}
+.controls{position:sticky;bottom:0;display:flex;gap:12px;justify-content:center;padding:14px;margin-top:24px;background:rgba(238,243,247,.92);backdrop-filter:blur(4px);border-top:1px solid var(--line)}
+.btn{border:none;border-radius:24px;padding:12px 26px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:var(--shadow)}
+.btn.primary{background:var(--teal);color:#fff}
+.btn.primary:hover{background:#0b7a7a}
+.btn.ghost{background:#fff;color:var(--navy);border:1px solid var(--line)}
+.btn.ghost:hover{background:#eaf2f8}
+footer{text-align:center;color:var(--muted);font-size:13px;padding:24px 0 8px}
+@media print{.controls,.reroll,.scorebar{display:none}}
+.namecard{background:#fff;border:1px solid var(--line);border-left:5px solid var(--teal);border-radius:8px;padding:14px 16px;margin:14px 0;box-shadow:var(--shadow)}
+.namecard label{display:block;font-size:14px;margin-bottom:8px;color:var(--ink)}
+.namecard input{font-size:16px;padding:10px 12px;border:2px solid var(--line);border-radius:8px;width:320px;max-width:100%}
+.namecard input:focus{outline:none;border-color:var(--teal)}
+.namecard input.bad{border-color:var(--bad);background:var(--badbg)}
+.mailstatus{margin:10px 0 0;padding:0;font-size:15px;text-align:center;border-radius:8px}
+.mailstatus.sending{padding:12px;background:#fff7e0;color:#8a6d00;border:1px solid #f0dd9b}
+.mailstatus.ok{padding:12px;background:var(--goodbg);color:var(--good);border:1px solid #bfe3c6}
+.mailstatus.warn{padding:12px;background:var(--badbg);color:var(--bad);border:1px solid #f4c7c3}
+</style>
+</head>
+<body>
+<header class="top"><div class="inner">
+  <span class="badge">Tobago Hospitality Institute · GED 001 · Foundation Mathematics II</span>
+  <h1>Make-Up Quiz &middot; Fractions, Decimals &amp; Percentages</h1>
+  <p>Simplifying, converting &amp; calculating &middot; 23 questions</p>
+</div></header>
+<div class="wrap">
+  <div class="howto"><b>For students who missed the Fractions, Decimals &amp; Percentages topics.</b> Type your name, then answer each question. Type fractions as <span class='mono'>a/b</span> (e.g. <span class='mono'>3/4</span>) or as decimals. Press <b>Submit</b> to mark your work and email your score to your teacher; press <b>&#8635; new numbers</b> to practise again.</div>
+  <div class="namecard">
+    <label for="studentName"><b>Student name</b> — required. When you press Submit, your marked results are emailed to your teacher.</label>
+    <input id="studentName" type="text" placeholder="Type your full name" autocomplete="name">
+  </div>
+  <div id="scorebar" class="scorebar idle"></div>
+  <div id="quiz"></div>
+  <div class="controls">
+    <button id="checkBtn" class="btn primary">Submit</button>
+    <button id="newBtn" class="btn ghost">&#8635; New numbers (whole quiz)</button>
+  </div>
+  <div id="mailstatus" class="mailstatus"></div>
+  <footer>THTI · Foundation Mathematics II · Self-marking make-up quiz. Pressing <b>Submit</b> marks your work and emails your score to your teacher. Questions tagged <b>random</b> use changing numbers — press "New numbers" to practise again.</footer>
+</div>
+<script>
+var WEB3FORMS_KEY="84fd2406-11db-4dc4-b531-8befa638dd40";
+var QUIZ_NAME="Make-Up Quiz: Fractions, Decimals & Percentages";
+</script>
+<script>
+/* ===== MAKE-UP QUIZ - Fractions, Decimals & Percentages ===== */
+var QUESTIONS=[
+
+/* ---- Fractions ---- */
+{section:"Part 1 — Fractions",random:true,build:function(){
+  var g=R(3,12),n=R(2,6),d=n+R(1,7);var N=n*g,D=d*g;
+  return {type:'short',prompt:"Write "+frac(N,D)+" in its <b>lowest terms</b>. (Type as a/b.)",
+    answer:n+"/"+d,tol:1e-9,explain:"Divide top and bottom by the HCF ("+g+"): "+frac(N,D)+" = "+frac(n,d)+"."};}},
+{section:"Part 1 — Fractions",random:true,build:function(){
+  var a=R(1,4),b=R(2,5);var k=R(2,6);var D=b*k,N=a*k;
+  return {type:'short',prompt:"Find the missing number: "+frac(a,b)+" = "+frac("?",D)+" &nbsp;(type the missing top number)",
+    answer:N,tol:0,explain:"The bottom was multiplied by "+k+" ("+b+"→"+D+"), so multiply the top too: "+a+" × "+k+" = "+N+"."};}},
+{section:"Part 1 — Fractions",random:true,build:function(){
+  var d1=pick([3,4,5]),d2=pick([6,8,10]);var a=R(1,d1-1),b=R(1,d2-1);
+  var v1=a/d1,v2=b/d2;var bigger=v1>=v2?frac(a,d1):frac(b,d2);var bigVal=Math.max(v1,v2);
+  while(Math.abs(v1-v2)<1e-9){b=R(1,d2-1);v2=b/d2;bigger=v1>=v2?frac(a,d1):frac(b,d2);bigVal=Math.max(v1,v2);}
+  return {type:'short',prompt:"Which fraction is <b>larger</b>: "+frac(a,d1)+" or "+frac(b,d2)+" ? &nbsp;Type the larger one (as a/b).",
+    answer:bigVal,tol:0.001,explain:"Compare using decimals: "+frac(a,d1)+" = "+round(v1,3)+" and "+frac(b,d2)+" = "+round(v2,3)+". The larger is "+bigger+"."};}},
+{section:"Part 1 — Fractions",random:true,build:function(){
+  var d1=pick([2,3,4]),d2=pick([5,6,8]);var a=R(1,d1-1),b=R(1,d2-1);var L=lcm(d1,d2);
+  return {type:'short',prompt:"Add: "+frac(a,d1)+" + "+frac(b,d2)+" &nbsp;(fraction or decimal)",
+    answer:a/d1+b/d2,tol:0.01,explain:"Common denominator "+L+": "+frac(a*L/d1,L)+" + "+frac(b*L/d2,L)+" = "+frac(a*L/d1+b*L/d2,L)+" = "+round(a/d1+b/d2,4)+"."};}},
+{section:"Part 1 — Fractions",random:true,build:function(){
+  var d1=pick([3,4,6]),d2=pick([2,3,4]);var a=R(2,d1),b=R(1,d2-1);var v=a/d1-b/d2;
+  while(v<=0){a=R(2,d1);b=R(1,d2-1);v=a/d1-b/d2;}var L=lcm(d1,d2);
+  return {type:'short',prompt:"Subtract: "+frac(a,d1)+" − "+frac(b,d2)+" &nbsp;(fraction or decimal)",
+    answer:v,tol:0.01,explain:"Common denominator "+L+": "+frac(a*L/d1,L)+" − "+frac(b*L/d2,L)+" = "+frac(a*L/d1-b*L/d2,L)+" = "+round(v,4)+"."};}},
+{section:"Part 1 — Fractions",random:true,build:function(){
+  var a=R(1,5),b=R(2,7),c=R(1,5),d=R(2,7);
+  return {type:'short',prompt:"Multiply: "+frac(a,b)+" × "+frac(c,d)+" &nbsp;(fraction or decimal)",
+    answer:(a*c)/(b*d),tol:0.01,explain:"Multiply tops and bottoms: "+frac(a*c,b*d)+" = "+round(a*c/(b*d),4)+"."};}},
+{section:"Part 1 — Fractions",random:true,build:function(){
+  var a=R(1,5),b=R(2,6),c=R(2,6),d=R(2,7);
+  return {type:'short',prompt:"Divide: "+frac(a,b)+" ÷ "+frac(c,d)+" &nbsp;(fraction or decimal)",
+    answer:(a*d)/(b*c),tol:0.01,explain:"Multiply by the reciprocal: "+frac(a,b)+" × "+frac(d,c)+" = "+frac(a*d,b*c)+" = "+round(a*d/(b*c),4)+"."};}},
+{section:"Part 1 — Fractions",random:true,build:function(){
+  var n=R(2,6),d=n+R(1,6);
+  return {type:'short',prompt:"What is the <b>reciprocal</b> of "+frac(n,d)+" ? (Type as a/b.)",
+    answer:d+"/"+n,tol:1e-9,explain:"The reciprocal flips the fraction upside down: "+frac(n,d)+" → "+frac(d,n)+"."};}},
+{section:"Part 1 — Fractions",random:true,build:function(){
+  var d=pick([3,4,5,6,8]);var w=R(2,5),r=R(1,d-1);var N=w*d+r;
+  return {type:'short',prompt:"Convert "+frac(N,d)+" to a mixed number. Type the <b>whole-number part</b>.",
+    answer:w,tol:0,explain:N+" ÷ "+d+" = "+w+" remainder "+r+", so "+frac(N,d)+" = "+w+" "+frac(r,d)+"."};}},
+{section:"Part 1 — Fractions",random:true,build:function(){
+  var d=pick([3,4,5,6,8,10]);var n=R(1,d-1);var q=d*R(4,12);
+  return {type:'short',prompt:"Find "+frac(n,d)+" of <b>"+q+"</b>.",
+    answer:n*q/d,tol:0.001,explain:"("+q+" ÷ "+d+") × "+n+" = "+(q/d)+" × "+n+" = "+(n*q/d)+"."};}},
+
+/* ---- Decimals ---- */
+{section:"Part 2 — Decimals",random:true,build:function(){
+  var x=(R(100,999)/100);var s=x.toFixed(2);var hd=Number(s.charAt(s.length-1));
+  return {type:'short',prompt:"In the decimal <b>"+s+"</b>, what is the <b>place value</b> of the last digit (the "+hd+")?",
+    answer:round(hd/100,2),tol:0.001,explain:"The last digit is in the hundredths place, so its value is "+hd+" × 0.01 = "+round(hd/100,2)+"."};}},
+{section:"Part 2 — Decimals",random:true,build:function(){
+  var d=pick([2,4,5,10,20,25]);var n=R(1,d-1);var g=gcd(n,d);var sn=n/g,sd=d/g;
+  var dec=round(n/d,3);
+  return {type:'short',prompt:"Convert the decimal <b>"+dec+"</b> to a fraction in lowest terms. (Type as a/b.)",
+    answer:sn+"/"+sd,tol:0.001,explain:dec+" = "+frac(n,d)+" = "+frac(sn,sd)+" in lowest terms."};}},
+{section:"Part 2 — Decimals",random:true,build:function(){
+  var set=shuffle([round(R(30,89)/100,2),round(R(105,180)/100,2),round(R(205,280)/100,2),round(R(300,395)/100,2)]);
+  var big=Math.max.apply(null,set);
+  return makeMCQ("Which decimal is the <b>largest</b>?<br><span class='mono'>"+set.map(function(x){return x.toFixed(2);}).join(",  ")+"</span>",big,
+    set.filter(function(x){return x!==big;}),
+    "Compare whole-number parts first, then tenths, then hundredths. The largest is "+big.toFixed(2)+".",
+    function(x){return Number(x).toFixed(2);});}},
+{section:"Part 2 — Decimals",random:true,build:function(){
+  var a=round(R(1000,8999)/1000,3),b=round(R(1000,8999)/1000,3);
+  return {type:'short',prompt:"Add: <span class='mono'>"+a.toFixed(3)+" + "+b.toFixed(3)+"</span>",
+    answer:round(a+b,3),tol:0.0005,explain:"Line up the decimal points: "+a.toFixed(3)+" + "+b.toFixed(3)+" = "+round(a+b,3).toFixed(3)+"."};}},
+{section:"Part 2 — Decimals",random:true,build:function(){
+  var a=round(R(11,49)/10,1),b=round(R(11,49)/10,1);
+  return {type:'short',prompt:"Multiply: <span class='mono'>"+a.toFixed(1)+" × "+b.toFixed(1)+"</span>",
+    answer:round(a*b,2),tol:0.005,explain:a+" × "+b+" = "+round(a*b,2)+" (two decimals × one place each → two decimal places)."};}},
+{section:"Part 2 — Decimals",random:true,build:function(){
+  var d=R(3,9),q=round(R(11,89)/10,1),n=round(d*q,1);
+  return {type:'short',prompt:"Divide: <span class='mono'>"+n.toFixed(1)+" ÷ "+d+"</span>",
+    answer:round(q,1),tol:0.005,explain:n+" ÷ "+d+" = "+round(q,1)+"."};}},
+{section:"Part 2 — Decimals",random:true,build:function(){
+  var x=round(R(100,999)/100,2);var ans=round(x,1);
+  return {type:'short',prompt:"Round <span class='mono'>"+x.toFixed(2)+"</span> to <b>1 decimal place</b>.",
+    answer:ans,tol:0.005,explain:"Look at the 2nd decimal: 5+ rounds up. "+x.toFixed(2)+" → "+ans.toFixed(1)+"."};}},
+
+/* ---- Percentages ---- */
+{section:"Part 3 — Percentages",random:true,build:function(){
+  var p=pick([5,10,15,20,25,30,40,60]);var base=R(4,40)*20;
+  return {type:'short',prompt:"Calculate <b>"+p+"%</b> of <b>"+base+"</b>.",
+    answer:round(base*p/100,2),tol:0.01,explain:p+"% of "+base+" = "+p+"/100 × "+base+" = "+round(base*p/100,2)+"."};}},
+{section:"Part 3 — Percentages",random:true,build:function(){
+  var opts=[[10,"1/10"],[20,"1/5"],[25,"1/4"],[50,"1/2"],[75,"3/4"],[40,"2/5"]];var o=pick(opts);
+  return {type:'short',prompt:"Convert <b>"+o[0]+"%</b> to a fraction in lowest terms. (Type as a/b.)",
+    answer:o[1],tol:0.001,explain:o[0]+"% = "+o[0]+"/100 = "+o[1].replace('/',' / ')+" in lowest terms."};}},
+{section:"Part 3 — Percentages",random:true,build:function(){
+  var x=round(R(5,95)/100,2);
+  return {type:'short',prompt:"Convert the decimal <b>"+x.toFixed(2)+"</b> to a <b>percentage</b>.",
+    answer:round(x*100,2),tol:0.01,unit:"%",explain:"Multiply by 100: "+x.toFixed(2)+" × 100 = "+round(x*100,2)+"%."};}},
+{section:"Part 3 — Percentages",random:true,build:function(){
+  var b=R(4,20)*5;var p=pick([10,20,25,40,50,80]);var a=b*p/100;
+  return {type:'short',prompt:"What <b>percentage</b> of <b>"+b+"</b> is <b>"+a+"</b>?",
+    answer:p,tol:0.1,unit:"%",explain:a+" ÷ "+b+" × 100 = "+p+"%."};}},
+{section:"Part 3 — Percentages",random:true,build:function(){
+  var base=R(4,30)*20;var p=pick([10,20,25,40,50]);var nv=base*(1-p/100);
+  return {type:'short',prompt:"A price of <b>$"+base+"</b> is <b>decreased</b> by <b>"+p+"%</b>. What is the new price?",
+    answer:round(nv,2),tol:0.01,unit:"$",explain:"Decrease = "+p+"% of $"+base+" = $"+round(base*p/100,2)+". New price = $"+base+" − $"+round(base*p/100,2)+" = $"+round(nv,2)+"."};}},
+{section:"Part 3 — Percentages",random:true,build:function(){
+  var d=pick([4,5,8,10,20,25]);var n=R(1,d-1);
+  return makeMCQ("Convert "+frac(n,d)+" to a <b>percentage</b>.",round(n/d*100,1)+"%",
+    [round(n/d*100,1)/2+"%", round(n/d*100,1)*2+"%", (100-round(n/d*100,1))+"%"],
+    frac(n,d)+" = "+n+" ÷ "+d+" = "+round(n/d,3)+" = "+round(n/d*100,1)+"%.");}}
+
+];
+</script>
+<script>
+/* THTI Foundation Mathematics II - Shared Quiz Engine (self-contained, no libraries). */
+function R(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=b;b=a%b;a=t;}return a||1;}
+function lcm(a,b){return Math.abs(a*b)/gcd(a,b);}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function frac(n,d){return '<span class="frac"><span class="top">'+n+'</span><span class="bot">'+d+'</span></span>';}
+function money(x){return '$'+Number(x).toFixed(2);}
+function round(x,dp){var f=Math.pow(10,dp);return Math.round(x*f)/f;}
+function makeMCQ(prompt,correct,distractors,explain,fmt){
+  fmt=fmt||function(x){return ''+x;};
+  var seen={};seen[String(correct)]=1;var opts=[{v:correct,c:true}];
+  for(var k=0;k<distractors.length;k++){var d=distractors[k];if(!seen[String(d)]){seen[String(d)]=1;opts.push({v:d,c:false});}}
+  shuffle(opts);var ci=0;for(var i=0;i<opts.length;i++){if(opts[i].c)ci=i;}
+  return {type:'mcq',prompt:prompt,choices:opts.map(function(o){return fmt(o.v);}),correct:ci,explain:explain};
+}
+function parseNumeric(s){
+  s=(''+s).trim().replace(/[$,%\s]/g,'');
+  if(s.indexOf('/')>-1&&s.indexOf(':')===-1){var p=s.split('/');var a=parseFloat(p[0]),b=parseFloat(p[1]);if(!b||isNaN(a)||isNaN(b))return null;return a/b;}
+  var v=parseFloat(s);return isNaN(v)?null:v;
+}
+function gradeShort(spec,raw){
+  raw=(''+raw).trim();if(raw==='')return false;var ans=spec.answer;
+  if(typeof ans==='string'&&ans.indexOf(':')>-1){return raw.replace(/\s/g,'')===ans.replace(/\s/g,'');}
+  if(typeof ans==='string'&&parseNumeric(ans)===null){return raw.toLowerCase().replace(/\s/g,'')===ans.toLowerCase().replace(/\s/g,'');}
+  var target=parseNumeric(ans),got=parseNumeric(raw);
+  if(got===null||target===null)return false;
+  return Math.abs(got-target)<=(spec.tol!=null?spec.tol:1e-9);
+}
+var STATE=[];
+function letter(i){return String.fromCharCode(65+i);}
+function buildOne(idx){var q=QUESTIONS[idx];var spec=q.build();spec.section=q.section;spec.random=!!q.random;STATE[idx]=spec;return spec;}
+function renderQuestion(idx){
+  var spec=STATE[idx];var card=document.querySelector('.q[data-idx="'+idx+'"]');
+  var inner='<div class="prompt">'+spec.prompt+'</div>';
+  if(spec.type==='mcq'){
+    inner+='<div class="choices">';
+    for(var i=0;i<spec.choices.length;i++){inner+='<label class="choice"><input type="radio" name="q'+idx+'" value="'+i+'"><span class="ltr">'+letter(i)+'</span><span class="ctext">'+spec.choices[i]+'</span></label>';}
+    inner+='</div>';
+  }else{
+    var pre=(spec.unit&&spec.unit.charAt(0)==='$')?'<span class="unit pre">$</span>':'';
+    var post=(spec.unit&&spec.unit.charAt(0)!=='$')?'<span class="unit">'+spec.unit+'</span>':'';
+    inner+='<div class="answerline">'+pre+'<input class="ans" type="text" placeholder="type your answer" autocomplete="off">'+post+'</div>';
+  }
+  inner+='<div class="feedback" hidden></div>';
+  card.querySelector('.qbody').innerHTML=inner;card.classList.remove('correct','wrong');
+}
+function render(){
+  var root=document.getElementById('quiz');root.innerHTML='';var curSection=null,n=0;
+  for(var idx=0;idx<QUESTIONS.length;idx++){
+    var q=QUESTIONS[idx];
+    if(q.section!==curSection){curSection=q.section;var h=document.createElement('h2');h.className='section';h.textContent=curSection;root.appendChild(h);}
+    n++;buildOne(idx);
+    var card=document.createElement('div');card.className='q';card.dataset.idx=idx;
+    var reroll=q.random?'<button class="reroll" onclick="rerollOne('+idx+')" title="Fresh numbers">&#8635; new numbers</button>':'';
+    card.innerHTML='<div class="qhead"><span class="qnum">'+n+'</span>'+(q.random?'<span class="tag">random</span>':'')+reroll+'</div><div class="qbody"></div>';
+    root.appendChild(card);renderQuestion(idx);
+  }
+  updateScore(null);
+}
+function rerollOne(idx){buildOne(idx);renderQuestion(idx);updateScore(null);}
+function checkAll(){
+  var correct=0,total=QUESTIONS.length,answered=0;
+  for(var idx=0;idx<QUESTIONS.length;idx++){
+    var spec=STATE[idx];var card=document.querySelector('.q[data-idx="'+idx+'"]');var fb=card.querySelector('.feedback');
+    var isRight=false,didAnswer=false;
+    if(spec.type==='mcq'){
+      var sel=card.querySelector('input[name="q'+idx+'"]:checked');didAnswer=!!sel;isRight=sel&&Number(sel.value)===spec.correct;
+      var labs=card.querySelectorAll('.choice');
+      for(var i=0;i<labs.length;i++){labs[i].classList.remove('mark-correct','mark-wrong');if(i===spec.correct)labs[i].classList.add('mark-correct');if(sel&&Number(sel.value)===i&&i!==spec.correct)labs[i].classList.add('mark-wrong');}
+    }else{
+      var inp=card.querySelector('.ans');didAnswer=inp.value.trim()!=='';isRight=gradeShort(spec,inp.value);
+      inp.classList.toggle('good',isRight);inp.classList.toggle('bad',didAnswer&&!isRight);
+    }
+    if(didAnswer)answered++;if(isRight)correct++;
+    card.classList.toggle('correct',isRight);card.classList.toggle('wrong',didAnswer&&!isRight);
+    var msg=isRight?'<b class="ok">&#10003; Correct.</b> ':'<b class="no">&#10007; Not quite.</b> ';
+    if(!isRight){
+      if(spec.type==='short'){var u1=(spec.unit&&spec.unit.charAt(0)==='$')?'$':'';var u2=(spec.unit&&spec.unit.charAt(0)!=='$')?' '+spec.unit:'';msg+='Answer: <b>'+u1+spec.answer+u2+'</b>. ';}
+      else{msg+='Answer: <b>'+letter(spec.correct)+'</b>. ';}
+    }
+    msg+=spec.explain||'';fb.innerHTML=msg;fb.hidden=false;
+  }
+  var _res={correct:correct,total:total,answered:answered};updateScore(_res);
+  document.getElementById('scorebar').scrollIntoView({behavior:'smooth',block:'center'});
+  return _res;
+}
+function updateScore(res){
+  var bar=document.getElementById('scorebar');
+  if(!res){bar.className='scorebar idle';bar.innerHTML='Answer the questions, then press <b>Check my answers</b>. Press <b>&#8635; new numbers</b> on any random question to practise it again with fresh values.';return;}
+  var pct=Math.round((res.correct/res.total)*100);var band='F';
+  if(pct>=85)band='A';else if(pct>=70)band='B';else if(pct>=55)band='C';else if(pct>=50)band='D';
+  bar.className='scorebar '+(pct>=70?'good':pct>=50?'mid':'low');
+  bar.innerHTML='Score: <b>'+res.correct+' / '+res.total+'</b> ('+pct+'%) &nbsp;&middot;&nbsp; Grade band: <b>'+band+'</b> &nbsp;&middot;&nbsp; Answered: '+res.answered+'/'+res.total;
+}
+function newQuiz(){render();var ms=document.getElementById('mailstatus');if(ms){ms.className='mailstatus';ms.innerHTML='';}window.scrollTo({top:0,behavior:'smooth'});}
+document.addEventListener('DOMContentLoaded',function(){render();document.getElementById('checkBtn').addEventListener('click',submitQuiz);document.getElementById('newBtn').addEventListener('click',newQuiz);});
+
+/* ===== Make-up quiz extras: Submit = self-grade + email results via Web3Forms ===== */
+function collectResults(){
+  var lines=[];
+  for(var idx=0;idx<QUESTIONS.length;idx++){
+    var spec=STATE[idx];var card=document.querySelector('.q[data-idx="'+idx+'"]');
+    var promptText=spec.prompt.replace(/<[^>]+>/g,' ').replace(/&[a-z]+;/g,' ').replace(/\s+/g,' ').trim();
+    var resp='',ok=card.classList.contains('correct');
+    if(spec.type==='mcq'){var sel=card.querySelector('input[name="q'+idx+'"]:checked');resp=sel?('('+letter(Number(sel.value))+') '+spec.choices[Number(sel.value)].replace(/<[^>]+>/g,'')):'(blank)';}
+    else{var inp=card.querySelector('.ans');resp=(inp.value||'').trim()||'(blank)';}
+    lines.push((idx+1)+'. ['+(ok?'CORRECT':'wrong')+'] '+promptText+'  ->  answer given: '+resp);
+  }
+  return lines.join('\n');
+}
+function submitQuiz(){
+  var nameEl=document.getElementById('studentName');
+  var name=(nameEl.value||'').trim();
+  var status=document.getElementById('mailstatus');
+  if(!name){nameEl.classList.add('bad');status.className='mailstatus warn';status.innerHTML='Please type your name at the top before submitting.';nameEl.focus();nameEl.scrollIntoView({behavior:'smooth',block:'center'});return;}
+  nameEl.classList.remove('bad');
+  var res=checkAll();
+  var pct=Math.round(res.correct/res.total*100);
+  status.className='mailstatus sending';status.innerHTML='Sending your results to your teacher&hellip;';
+  var payload={
+    access_key:WEB3FORMS_KEY,
+    subject:QUIZ_NAME+' — '+name+' ('+res.correct+'/'+res.total+', '+pct+'%)',
+    from_name:'THTI Foundation Maths II Quiz',
+    student_name:name,
+    quiz:QUIZ_NAME,
+    score:res.correct+' / '+res.total+' ('+pct+'%)',
+    answered:res.answered+' / '+res.total,
+    breakdown:collectResults()
+  };
+  fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(payload)})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d && d.success){status.className='mailstatus ok';status.innerHTML='&#10003; Results submitted. '+name+' — <b>'+res.correct+'/'+res.total+' ('+pct+'%)</b>. Your teacher has been emailed. See marked answers above.';}
+      else{status.className='mailstatus warn';status.innerHTML='Your answers were graded (see above), but the email did not send: '+((d&&d.message)||'unknown error')+'. Please tell your teacher.';}
+    })
+    .catch(function(){status.className='mailstatus warn';status.innerHTML='Your answers were graded and marked above, but could not be emailed (no internet connection?). Check your connection and press <b>Submit</b> again.';});
+}
+</script>
+</body></html>
