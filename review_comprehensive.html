@@ -74,7 +74,7 @@ footer{text-align:center;color:var(--muted);font-size:13px;padding:24px 0 8px}
   <p>All 14 sessions &middot; Number Theory &rarr; Consumer Arithmetic &middot; 53 questions, simple to advanced</p>
 </div></header>
 <div class="wrap">
-  <div class="howto"><b>How to use:</b> Answer every question — pick a letter for multiple choice, or type into the box for short answers. Then press <b>Check my answers</b> for instant marking, your score, and worked explanations. Questions marked <b>random</b> use changing numbers: press <b>&#8635; new numbers</b> on any one, or <b>New numbers</b> at the bottom, to get a fresh version. Short answers accept fractions (like <span class='mono'>3/4</span>) or decimals.</div>
+  <div class="howto"><b>How to use:</b> Answer every question — pick a letter for multiple choice, or type into the box for short answers. Then press <b>Check my answers</b> for instant marking, your score, and worked explanations. Questions marked <b>random</b> use changing numbers: press <b>&#8635; new numbers</b> on any one, or <b>New numbers</b> at the bottom, to get a fresh version. Short answers accept fractions (like <span class='mono'>3/4</span>), mixed numbers (like <span class='mono'>2 3/4</span>) or decimals.</div>
   <div id="scorebar" class="scorebar idle"></div>
   <div id="quiz"></div>
   <div class="controls">
@@ -217,8 +217,8 @@ var QUESTIONS=[
     answer:(a*d)/(b*c),tol:0.01,explain:"Multiply by the reciprocal: "+frac(a,b)+" × "+frac(d,c)+" = "+frac(a*d,b*c)+" = "+round(a*d/(b*c),4)+"."};}},
 {section:"F. Fractions",random:true,build:function(){
   var d=pick([3,4,5,6,8]);var w=R(2,5),r=R(1,d-1);var N=w*d+r;
-  return {type:'short',prompt:"Convert the improper fraction "+frac(N,d)+" to a mixed number. What is the <b>whole-number part</b>?",
-    answer:w,tol:0,explain:N+" ÷ "+d+" = "+w+" remainder "+r+", so "+frac(N,d)+" = "+w+" "+frac(r,d)+"."};}},
+  return {type:'short',prompt:"Convert the improper fraction "+frac(N,d)+" to a mixed number. Type the whole number and fraction together, like <span class='mono'>2 3/4</span>.",
+    answer:w+" "+r+"/"+d,tol:0.001,explain:N+" ÷ "+d+" = "+w+" remainder "+r+", so "+frac(N,d)+" = <b>"+w+" "+frac(r,d)+"</b>."};}},
 {section:"F. Fractions",random:true,build:function(){
   var d=pick([3,4,5,6,8]);var n=R(1,d-1);var mult=R(3,9);var Q=d*mult;
   return {type:'short',prompt:"Find "+frac(n,d)+" of <b>"+Q+"</b>.",
@@ -336,8 +336,12 @@ function makeMCQ(prompt,correct,distractors,explain,fmt){
   return {type:'mcq',prompt:prompt,choices:opts.map(function(o){return fmt(o.v);}),correct:ci,explain:explain};
 }
 function parseNumeric(s){
-  s=(''+s).trim().replace(/[$,%\s]/g,'');
-  if(s.indexOf('/')>-1&&s.indexOf(':')===-1){var p=s.split('/');var a=parseFloat(p[0]),b=parseFloat(p[1]);if(!b||isNaN(a)||isNaN(b))return null;return a/b;}
+  s=(''+s).trim().replace(/[$,%]/g,'');
+  if(s.indexOf(':')>-1)return null;
+  var mm=s.match(/^(-?\d+)\s+(\d+)\s*\/\s*(\d+)$/);
+  if(mm){var w=parseInt(mm[1],10),n=parseInt(mm[2],10),d=parseInt(mm[3],10);if(!d)return null;var sg=w<0?-1:1;return w+sg*(n/d);}
+  s=s.replace(/\s/g,'');
+  if(s.indexOf('/')>-1){var p=s.split('/');var a=parseFloat(p[0]),b=parseFloat(p[1]);if(!b||isNaN(a)||isNaN(b))return null;return a/b;}
   var v=parseFloat(s);return isNaN(v)?null:v;
 }
 function gradeShort(spec,raw){
