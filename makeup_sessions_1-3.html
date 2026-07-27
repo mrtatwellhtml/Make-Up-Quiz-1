@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Make-Up Quiz &middot; Sessions 1–3 — THTI Foundation Mathematics II</title>
+<style>
+:root{
+  --navy:#0f3d5c; --navy2:#14547e; --teal:#0e8f8f; --gold:#f2b705;
+  --bg:#eef3f7; --card:#ffffff; --ink:#1c2b36; --muted:#5b6b78;
+  --good:#1e8e3e; --goodbg:#e6f4ea; --bad:#c5221f; --badbg:#fce8e6;
+  --line:#d7e1ea; --shadow:0 2px 10px rgba(15,61,92,.08);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+.wrap{max-width:860px;margin:0 auto;padding:0 18px 80px}
+header.top{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:26px 18px 22px;box-shadow:var(--shadow)}
+header.top .inner{max-width:860px;margin:0 auto}
+.badge{display:inline-block;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;background:rgba(255,255,255,.15);padding:4px 10px;border-radius:20px;margin-bottom:10px}
+header.top h1{margin:2px 0 6px;font-size:26px}
+header.top p{margin:0;opacity:.9;font-size:14px}
+.howto{background:#fff;border-left:5px solid var(--gold);border-radius:8px;padding:12px 16px;margin:18px 0;box-shadow:var(--shadow);font-size:14px}
+.howto b{color:var(--navy)}
+.scorebar{position:sticky;top:0;z-index:5;margin:14px 0 6px;padding:12px 16px;border-radius:8px;font-size:15px;text-align:center;box-shadow:var(--shadow)}
+.scorebar.idle{background:#fff;color:var(--muted)}
+.scorebar.good{background:var(--goodbg);color:var(--good);border:1px solid #bfe3c6}
+.scorebar.mid{background:#fff7e0;color:#8a6d00;border:1px solid #f0dd9b}
+.scorebar.low{background:var(--badbg);color:var(--bad);border:1px solid #f4c7c3}
+h2.section{margin:30px 0 8px;padding:8px 14px;background:var(--navy);color:#fff;border-radius:8px;font-size:16px;letter-spacing:.3px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:12px 0;box-shadow:var(--shadow);transition:border-color .2s}
+.q.correct{border-color:#bfe3c6;box-shadow:0 0 0 2px #bfe3c6 inset}
+.q.wrong{border-color:#f4c7c3;box-shadow:0 0 0 2px #f4c7c3 inset}
+.qhead{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.qnum{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:28px;background:var(--teal);color:#fff;border-radius:50%;font-weight:700;font-size:14px;padding:0 6px}
+.tag{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--teal);border:1px solid var(--teal);border-radius:12px;padding:1px 8px}
+.reroll{margin-left:auto;background:#f0f7f7;color:var(--teal);border:1px solid #cbe6e6;border-radius:16px;padding:4px 12px;font-size:13px;cursor:pointer}
+.reroll:hover{background:var(--teal);color:#fff}
+.prompt{font-size:16px;margin-bottom:10px}
+.prompt code,.mono{font-family:"Consolas",monospace;background:#f4f7fa;padding:1px 6px;border-radius:5px}
+.choices{display:grid;gap:8px}
+.choice{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;cursor:pointer;transition:background .15s}
+.choice:hover{background:#f4f9fc}
+.choice input{accent-color:var(--teal);width:18px;height:18px}
+.choice .ltr{font-weight:700;color:var(--navy);min-width:18px}
+.choice.mark-correct{background:var(--goodbg);border-color:#bfe3c6}
+.choice.mark-wrong{background:var(--badbg);border-color:#f4c7c3}
+.answerline{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.answerline .unit{color:var(--muted);font-size:15px}
+.answerline .unit.pre{order:-1}
+input.ans{font-size:16px;padding:9px 12px;border:2px solid var(--line);border-radius:8px;width:200px;max-width:60%}
+input.ans:focus{outline:none;border-color:var(--teal)}
+input.ans.good{border-color:var(--good);background:var(--goodbg)}
+input.ans.bad{border-color:var(--bad);background:var(--badbg)}
+.feedback{margin-top:10px;padding:9px 12px;background:#f7fafc;border-radius:8px;font-size:14px;border:1px solid var(--line)}
+.feedback .ok{color:var(--good)}
+.feedback .no{color:var(--bad)}
+.frac{display:inline-flex;flex-direction:column;text-align:center;vertical-align:middle;margin:0 3px;font-size:.9em}
+.frac .top{border-bottom:1.5px solid currentColor;padding:0 4px;line-height:1.1}
+.frac .bot{padding:0 4px;line-height:1.1}
+.controls{position:sticky;bottom:0;display:flex;gap:12px;justify-content:center;padding:14px;margin-top:24px;background:rgba(238,243,247,.92);backdrop-filter:blur(4px);border-top:1px solid var(--line)}
+.btn{border:none;border-radius:24px;padding:12px 26px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:var(--shadow)}
+.btn.primary{background:var(--teal);color:#fff}
+.btn.primary:hover{background:#0b7a7a}
+.btn.ghost{background:#fff;color:var(--navy);border:1px solid var(--line)}
+.btn.ghost:hover{background:#eaf2f8}
+footer{text-align:center;color:var(--muted);font-size:13px;padding:24px 0 8px}
+@media print{.controls,.reroll,.scorebar{display:none}}
+.namecard{background:#fff;border:1px solid var(--line);border-left:5px solid var(--teal);border-radius:8px;padding:14px 16px;margin:14px 0;box-shadow:var(--shadow)}
+.namecard label{display:block;font-size:14px;margin-bottom:8px;color:var(--ink)}
+.namecard input{font-size:16px;padding:10px 12px;border:2px solid var(--line);border-radius:8px;width:320px;max-width:100%}
+.namecard input:focus{outline:none;border-color:var(--teal)}
+.namecard input.bad{border-color:var(--bad);background:var(--badbg)}
+.mailstatus{margin:10px 0 0;padding:0;font-size:15px;text-align:center;border-radius:8px}
+.mailstatus.sending{padding:12px;background:#fff7e0;color:#8a6d00;border:1px solid #f0dd9b}
+.mailstatus.ok{padding:12px;background:var(--goodbg);color:var(--good);border:1px solid #bfe3c6}
+.mailstatus.warn{padding:12px;background:var(--badbg);color:var(--bad);border:1px solid #f4c7c3}
+</style>
+</head>
+<body>
+<header class="top"><div class="inner">
+  <span class="badge">Tobago Hospitality Institute · GED 001 · Foundation Mathematics II</span>
+  <h1>Make-Up Quiz &middot; Sessions 1–3</h1>
+  <p>Number Theory &middot; Basic Operations &middot; Order of Operations &middot; 20 questions</p>
+</div></header>
+<div class="wrap">
+  <div class="howto"><b>For students who missed Sessions 1–3.</b> Type your name, answer each question, then press <b>Submit</b> — your work is marked instantly with worked solutions, and your score is emailed to your teacher. Numbers are <b>randomised</b>; press <b>&#8635; new numbers</b> to keep practising.</div>
+  <div class="namecard">
+    <label for="studentName"><b>Student name</b> — required. When you press Submit, your marked results are emailed to your teacher.</label>
+    <input id="studentName" type="text" placeholder="Type your full name" autocomplete="name">
+  </div>
+  <div id="scorebar" class="scorebar idle"></div>
+  <div id="quiz"></div>
+  <div class="controls">
+    <button id="checkBtn" class="btn primary">Submit</button>
+    <button id="newBtn" class="btn ghost">&#8635; New numbers (whole quiz)</button>
+  </div>
+  <div id="mailstatus" class="mailstatus"></div>
+  <footer>THTI · Foundation Mathematics II · Self-marking make-up quiz. Pressing <b>Submit</b> marks your work and emails your score to your teacher. Questions tagged <b>random</b> use changing numbers — press "New numbers" to practise again.</footer>
+</div>
+<script>
+var WEB3FORMS_KEY="84fd2406-11db-4dc4-b531-8befa638dd40";
+var QUIZ_NAME="Make-Up Quiz: Sessions 1-3 (Number Theory, Basic Operations, Order of Operations)";
+</script>
+<script>
+/* ===== MAKE-UP QUIZ - Sessions 1-3: Number Theory, Basic Operations, Order of Operations ===== */
+var QUESTIONS=[
+
+/* ---- Session 1: Number Theory & Place Value ---- */
+{section:"Session 1 — Number Theory & Place Value",random:false,build:function(){
+  return makeMCQ("Which number is a <b>whole number</b> but <b>not</b> a natural (counting) number?",0,[1,5,12,7],
+    "Natural numbers are 1, 2, 3, … Whole numbers add 0 to that list. So 0 is whole but not natural.");}},
+{section:"Session 1 — Number Theory & Place Value",random:true,build:function(){
+  var set=shuffle([2*R(3,9),2*R(3,9)+1,2*R(3,9)+1,2*R(3,9)+1]);var ev=set.filter(function(x){return x%2===0;})[0];
+  return makeMCQ("Which of these is an <b>even</b> number?<br><span class='mono'>"+set.join(",  ")+"</span>",ev,
+    set.filter(function(x){return x!==ev;}),
+    "An even number is exactly divisible by 2 (ends in 0,2,4,6,8). Here that is "+ev+".");}},
+{section:"Session 1 — Number Theory & Place Value",random:true,build:function(){
+  var n=R(20,98)*1000+R(0,999);var digit=Math.floor(n/100)%10;
+  return {type:'short',prompt:"In the number <b>"+n.toLocaleString()+"</b>, which <b>digit</b> is in the <b>hundreds</b> place?",
+    answer:digit,tol:0,explain:"Counting from the right: units, tens, hundreds… The hundreds digit is "+digit+"."};}},
+{section:"Session 1 — Number Theory & Place Value",random:true,build:function(){
+  var n=R(115,9985);var ans=Math.round(n/10)*10;
+  return {type:'short',prompt:"Round <b>"+n.toLocaleString()+"</b> to the <b>nearest 10</b>.",
+    answer:ans,tol:0,explain:"Look at the units digit ("+n%10+"): 5+ rounds up, 4− rounds down. "+n+" → "+ans+"."};}},
+{section:"Session 1 — Number Theory & Place Value",random:true,build:function(){
+  var n=R(1200,9800);var ans=Math.round(n/1000)*1000;
+  return {type:'short',prompt:"Round <b>"+n.toLocaleString()+"</b> to the <b>nearest 1000</b>.",
+    answer:ans,tol:0,explain:"Look at the hundreds digit ("+Math.floor(n/100)%10+"): 5+ rounds up. "+n+" → "+ans.toLocaleString()+"."};}},
+{section:"Session 1 — Number Theory & Place Value",random:true,build:function(){
+  var n=R(1400,9700);var ans=Math.floor(n/100);
+  return {type:'short',prompt:"How many <b>whole hundreds</b> are there in <b>"+n.toLocaleString()+"</b>?",
+    answer:ans,tol:0,explain:n+" ÷ 100 = "+ans+" remainder "+(n%100)+", so there are "+ans+" whole hundreds."};}},
+
+/* ---- Session 2: Basic Operations & Word Problems ---- */
+{section:"Session 2 — Basic Operations & Word Problems",random:true,build:function(){
+  var a=R(120,890),b=R(120,890),c=R(120,890);
+  return {type:'short',prompt:"Add: <span class='mono'>"+a+" + "+b+" + "+c+"</span>",
+    answer:a+b+c,tol:0,explain:a+" + "+b+" + "+c+" = "+(a+b+c)+"."};}},
+{section:"Session 2 — Basic Operations & Word Problems",random:true,build:function(){
+  var a=R(3005,8090),b=R(1200,2999);
+  return {type:'short',prompt:"Subtract (watch the borrowing): <span class='mono'>"+a.toLocaleString()+" − "+b.toLocaleString()+"</span>",
+    answer:a-b,tol:0,explain:a+" − "+b+" = "+(a-b)+"."};}},
+{section:"Session 2 — Basic Operations & Word Problems",random:true,build:function(){
+  var d=R(3,9),q=R(11,49),n=d*q;
+  return {type:'short',prompt:"Short division: <span class='mono'>"+n+" ÷ "+d+"</span>",
+    answer:q,tol:0,explain:n+" ÷ "+d+" = "+q+"."};}},
+{section:"Session 2 — Basic Operations & Word Problems",random:true,build:function(){
+  var d=R(12,24),q=R(30,120),n=d*q;
+  return {type:'short',prompt:"Long division: <span class='mono'>"+n.toLocaleString()+" ÷ "+d+"</span>",
+    answer:q,tol:0,explain:n+" ÷ "+d+" = "+q+" (since "+d+" × "+q+" = "+n+")."};}},
+{section:"Session 2 — Basic Operations & Word Problems",random:true,build:function(){
+  var price=R(12,45),n=R(6,20);
+  return {type:'short',prompt:"A shop sells notebooks at <b>$"+price+"</b> each. What is the total cost of <b>"+n+"</b> notebooks?",
+    answer:price*n,tol:0,unit:"$",explain:"Total = $"+price+" × "+n+" = $"+(price*n)+"."};}},
+{section:"Session 2 — Basic Operations & Word Problems",random:true,build:function(){
+  var start=R(400,900),spent=R(80,350),earned=R(50,300);
+  return {type:'short',prompt:"A vendor starts the day with <b>$"+start+"</b>, spends <b>$"+spent+"</b> on stock, then earns <b>$"+earned+"</b> in sales. How much money does the vendor have now?",
+    answer:start-spent+earned,tol:0,unit:"$",explain:"$"+start+" − $"+spent+" + $"+earned+" = $"+(start-spent+earned)+"."};}},
+{section:"Session 2 — Basic Operations & Word Problems",random:true,build:function(){
+  var a=R(31,48),b=R(18,33);var ra=Math.round(a/10)*10,rb=Math.round(b/10)*10;
+  return makeMCQ("<b>Estimate</b> the product <span class='mono'>"+a+" × "+b+"</span> by first rounding each number to the nearest 10.",ra*rb,
+    [a*b, ra*rb+100, (ra-10)*rb],
+    "Round: "+a+"→"+ra+", "+b+"→"+rb+". Estimate = "+ra+" × "+rb+" = "+(ra*rb)+".",
+    function(x){return Number(x).toLocaleString();});}},
+
+/* ---- Session 3: Order of Operations ---- */
+{section:"Session 3 — Order of Operations",random:true,build:function(){
+  var a=R(4,12),b=R(4,12),c=R(2,15);
+  return {type:'short',prompt:"Evaluate: <span class='mono'>"+a+" × "+b+" + "+c+"</span>",
+    answer:a*b+c,tol:0,explain:"Multiply first: "+a+"×"+b+" = "+(a*b)+", then + "+c+" = "+(a*b+c)+"."};}},
+{section:"Session 3 — Order of Operations",random:true,build:function(){
+  var a=R(15,40),b=R(3,14),c=R(3,14);
+  return {type:'short',prompt:"Evaluate (work left to right): <span class='mono'>"+a+" − "+b+" + "+c+"</span>",
+    answer:a-b+c,tol:0,explain:"+ and − have equal priority, so work left to right: "+a+" − "+b+" = "+(a-b)+", + "+c+" = "+(a-b+c)+"."};}},
+{section:"Session 3 — Order of Operations",random:true,build:function(){
+  var a=R(3,15),b=R(3,9),c=R(3,9),d=R(2,12);
+  return {type:'short',prompt:"Evaluate: <span class='mono'>"+a+" + "+b+" × "+c+" − "+d+"</span>",
+    answer:a+b*c-d,tol:0,explain:"Multiply first: "+b+"×"+c+" = "+(b*c)+". Then "+a+" + "+(b*c)+" − "+d+" = "+(a+b*c-d)+"."};}},
+{section:"Session 3 — Order of Operations",random:true,build:function(){
+  var a=R(8,20),b=R(2,7),c=R(2,9);
+  return {type:'short',prompt:"Evaluate the bracket first: <span class='mono'>("+a+" − "+b+") × "+c+"</span>",
+    answer:(a-b)*c,tol:0,explain:"Brackets first: "+a+"−"+b+" = "+(a-b)+", then ×"+c+" = "+((a-b)*c)+"."};}},
+{section:"Session 3 — Order of Operations",random:true,build:function(){
+  var d=R(2,5),b=R(2,6),c=R(1,6);var a=d*R(2,6);var ans=a*(b+c)/d;
+  return {type:'short',prompt:"Evaluate: <span class='mono'>"+a+" × ("+b+" + "+c+") ÷ "+d+"</span>",
+    answer:ans,tol:0,explain:"Brackets: "+b+"+"+c+" = "+(b+c)+". Then left to right: "+a+" × "+(b+c)+" = "+(a*(b+c))+", ÷ "+d+" = "+ans+"."};}},
+{section:"Session 3 — Order of Operations",random:true,build:function(){
+  var s=R(2,6),a=R(2,9),b=R(2,9);var sum=a+b;var whole=sum*R(2,6);var ans=whole/sum*s;
+  return makeMCQ("Evaluate: <span class='mono'>"+whole+" ÷ ("+a+" + "+b+") × "+s+"</span>",ans,
+    [whole/(sum*s), whole/sum+s, whole/(a)+b],
+    "Brackets: "+a+"+"+b+" = "+sum+". Then ÷ and × left to right: "+whole+" ÷ "+sum+" = "+(whole/sum)+", × "+s+" = "+ans+".");}},
+{section:"Session 3 — Order of Operations",random:true,build:function(){
+  var a=R(4,9),b=R(2,6),c=R(2,6);var ans=a*a-b*c;while(ans<0){a=R(5,9);ans=a*a-b*c;}
+  return {type:'short',prompt:"Evaluate (power first): <span class='mono'>"+a+"² − "+b+" × "+c+"</span>",
+    answer:ans,tol:0,explain:a+"² = "+(a*a)+"; "+b+"×"+c+" = "+(b*c)+"; "+(a*a)+" − "+(b*c)+" = "+ans+"."};}}
+
+];
+</script>
+<script>
+/* THTI Foundation Mathematics II - Shared Quiz Engine (self-contained, no libraries). */
+function R(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=b;b=a%b;a=t;}return a||1;}
+function lcm(a,b){return Math.abs(a*b)/gcd(a,b);}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function frac(n,d){return '<span class="frac"><span class="top">'+n+'</span><span class="bot">'+d+'</span></span>';}
+function money(x){return '$'+Number(x).toFixed(2);}
+function round(x,dp){var f=Math.pow(10,dp);return Math.round(x*f)/f;}
+function makeMCQ(prompt,correct,distractors,explain,fmt){
+  fmt=fmt||function(x){return ''+x;};
+  var seen={};seen[String(correct)]=1;var opts=[{v:correct,c:true}];
+  for(var k=0;k<distractors.length;k++){var d=distractors[k];if(!seen[String(d)]){seen[String(d)]=1;opts.push({v:d,c:false});}}
+  shuffle(opts);var ci=0;for(var i=0;i<opts.length;i++){if(opts[i].c)ci=i;}
+  return {type:'mcq',prompt:prompt,choices:opts.map(function(o){return fmt(o.v);}),correct:ci,explain:explain};
+}
+function parseNumeric(s){
+  s=(''+s).trim().replace(/[$,%\s]/g,'');
+  if(s.indexOf('/')>-1&&s.indexOf(':')===-1){var p=s.split('/');var a=parseFloat(p[0]),b=parseFloat(p[1]);if(!b||isNaN(a)||isNaN(b))return null;return a/b;}
+  var v=parseFloat(s);return isNaN(v)?null:v;
+}
+function gradeShort(spec,raw){
+  raw=(''+raw).trim();if(raw==='')return false;var ans=spec.answer;
+  if(typeof ans==='string'&&ans.indexOf(':')>-1){return raw.replace(/\s/g,'')===ans.replace(/\s/g,'');}
+  if(typeof ans==='string'&&parseNumeric(ans)===null){return raw.toLowerCase().replace(/\s/g,'')===ans.toLowerCase().replace(/\s/g,'');}
+  var target=parseNumeric(ans),got=parseNumeric(raw);
+  if(got===null||target===null)return false;
+  return Math.abs(got-target)<=(spec.tol!=null?spec.tol:1e-9);
+}
+var STATE=[];
+function letter(i){return String.fromCharCode(65+i);}
+function buildOne(idx){var q=QUESTIONS[idx];var spec=q.build();spec.section=q.section;spec.random=!!q.random;STATE[idx]=spec;return spec;}
+function renderQuestion(idx){
+  var spec=STATE[idx];var card=document.querySelector('.q[data-idx="'+idx+'"]');
+  var inner='<div class="prompt">'+spec.prompt+'</div>';
+  if(spec.type==='mcq'){
+    inner+='<div class="choices">';
+    for(var i=0;i<spec.choices.length;i++){inner+='<label class="choice"><input type="radio" name="q'+idx+'" value="'+i+'"><span class="ltr">'+letter(i)+'</span><span class="ctext">'+spec.choices[i]+'</span></label>';}
+    inner+='</div>';
+  }else{
+    var pre=(spec.unit&&spec.unit.charAt(0)==='$')?'<span class="unit pre">$</span>':'';
+    var post=(spec.unit&&spec.unit.charAt(0)!=='$')?'<span class="unit">'+spec.unit+'</span>':'';
+    inner+='<div class="answerline">'+pre+'<input class="ans" type="text" placeholder="type your answer" autocomplete="off">'+post+'</div>';
+  }
+  inner+='<div class="feedback" hidden></div>';
+  card.querySelector('.qbody').innerHTML=inner;card.classList.remove('correct','wrong');
+}
+function render(){
+  var root=document.getElementById('quiz');root.innerHTML='';var curSection=null,n=0;
+  for(var idx=0;idx<QUESTIONS.length;idx++){
+    var q=QUESTIONS[idx];
+    if(q.section!==curSection){curSection=q.section;var h=document.createElement('h2');h.className='section';h.textContent=curSection;root.appendChild(h);}
+    n++;buildOne(idx);
+    var card=document.createElement('div');card.className='q';card.dataset.idx=idx;
+    var reroll=q.random?'<button class="reroll" onclick="rerollOne('+idx+')" title="Fresh numbers">&#8635; new numbers</button>':'';
+    card.innerHTML='<div class="qhead"><span class="qnum">'+n+'</span>'+(q.random?'<span class="tag">random</span>':'')+reroll+'</div><div class="qbody"></div>';
+    root.appendChild(card);renderQuestion(idx);
+  }
+  updateScore(null);
+}
+function rerollOne(idx){buildOne(idx);renderQuestion(idx);updateScore(null);}
+function checkAll(){
+  var correct=0,total=QUESTIONS.length,answered=0;
+  for(var idx=0;idx<QUESTIONS.length;idx++){
+    var spec=STATE[idx];var card=document.querySelector('.q[data-idx="'+idx+'"]');var fb=card.querySelector('.feedback');
+    var isRight=false,didAnswer=false;
+    if(spec.type==='mcq'){
+      var sel=card.querySelector('input[name="q'+idx+'"]:checked');didAnswer=!!sel;isRight=sel&&Number(sel.value)===spec.correct;
+      var labs=card.querySelectorAll('.choice');
+      for(var i=0;i<labs.length;i++){labs[i].classList.remove('mark-correct','mark-wrong');if(i===spec.correct)labs[i].classList.add('mark-correct');if(sel&&Number(sel.value)===i&&i!==spec.correct)labs[i].classList.add('mark-wrong');}
+    }else{
+      var inp=card.querySelector('.ans');didAnswer=inp.value.trim()!=='';isRight=gradeShort(spec,inp.value);
+      inp.classList.toggle('good',isRight);inp.classList.toggle('bad',didAnswer&&!isRight);
+    }
+    if(didAnswer)answered++;if(isRight)correct++;
+    card.classList.toggle('correct',isRight);card.classList.toggle('wrong',didAnswer&&!isRight);
+    var msg=isRight?'<b class="ok">&#10003; Correct.</b> ':'<b class="no">&#10007; Not quite.</b> ';
+    if(!isRight){
+      if(spec.type==='short'){var u1=(spec.unit&&spec.unit.charAt(0)==='$')?'$':'';var u2=(spec.unit&&spec.unit.charAt(0)!=='$')?' '+spec.unit:'';msg+='Answer: <b>'+u1+spec.answer+u2+'</b>. ';}
+      else{msg+='Answer: <b>'+letter(spec.correct)+'</b>. ';}
+    }
+    msg+=spec.explain||'';fb.innerHTML=msg;fb.hidden=false;
+  }
+  var _res={correct:correct,total:total,answered:answered};updateScore(_res);
+  document.getElementById('scorebar').scrollIntoView({behavior:'smooth',block:'center'});
+  return _res;
+}
+function updateScore(res){
+  var bar=document.getElementById('scorebar');
+  if(!res){bar.className='scorebar idle';bar.innerHTML='Answer the questions, then press <b>Check my answers</b>. Press <b>&#8635; new numbers</b> on any random question to practise it again with fresh values.';return;}
+  var pct=Math.round((res.correct/res.total)*100);var band='F';
+  if(pct>=85)band='A';else if(pct>=70)band='B';else if(pct>=55)band='C';else if(pct>=50)band='D';
+  bar.className='scorebar '+(pct>=70?'good':pct>=50?'mid':'low');
+  bar.innerHTML='Score: <b>'+res.correct+' / '+res.total+'</b> ('+pct+'%) &nbsp;&middot;&nbsp; Grade band: <b>'+band+'</b> &nbsp;&middot;&nbsp; Answered: '+res.answered+'/'+res.total;
+}
+function newQuiz(){render();var ms=document.getElementById('mailstatus');if(ms){ms.className='mailstatus';ms.innerHTML='';}window.scrollTo({top:0,behavior:'smooth'});}
+document.addEventListener('DOMContentLoaded',function(){render();document.getElementById('checkBtn').addEventListener('click',submitQuiz);document.getElementById('newBtn').addEventListener('click',newQuiz);});
+
+/* ===== Make-up quiz extras: Submit = self-grade + email results via Web3Forms ===== */
+function collectResults(){
+  var lines=[];
+  for(var idx=0;idx<QUESTIONS.length;idx++){
+    var spec=STATE[idx];var card=document.querySelector('.q[data-idx="'+idx+'"]');
+    var promptText=spec.prompt.replace(/<[^>]+>/g,' ').replace(/&[a-z]+;/g,' ').replace(/\s+/g,' ').trim();
+    var resp='',ok=card.classList.contains('correct');
+    if(spec.type==='mcq'){var sel=card.querySelector('input[name="q'+idx+'"]:checked');resp=sel?('('+letter(Number(sel.value))+') '+spec.choices[Number(sel.value)].replace(/<[^>]+>/g,'')):'(blank)';}
+    else{var inp=card.querySelector('.ans');resp=(inp.value||'').trim()||'(blank)';}
+    lines.push((idx+1)+'. ['+(ok?'CORRECT':'wrong')+'] '+promptText+'  ->  answer given: '+resp);
+  }
+  return lines.join('\n');
+}
+function submitQuiz(){
+  var nameEl=document.getElementById('studentName');
+  var name=(nameEl.value||'').trim();
+  var status=document.getElementById('mailstatus');
+  if(!name){nameEl.classList.add('bad');status.className='mailstatus warn';status.innerHTML='Please type your name at the top before submitting.';nameEl.focus();nameEl.scrollIntoView({behavior:'smooth',block:'center'});return;}
+  nameEl.classList.remove('bad');
+  var res=checkAll();
+  var pct=Math.round(res.correct/res.total*100);
+  status.className='mailstatus sending';status.innerHTML='Sending your results to your teacher&hellip;';
+  var payload={
+    access_key:WEB3FORMS_KEY,
+    subject:QUIZ_NAME+' — '+name+' ('+res.correct+'/'+res.total+', '+pct+'%)',
+    from_name:'THTI Foundation Maths II Quiz',
+    student_name:name,
+    quiz:QUIZ_NAME,
+    score:res.correct+' / '+res.total+' ('+pct+'%)',
+    answered:res.answered+' / '+res.total,
+    breakdown:collectResults()
+  };
+  fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(payload)})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d && d.success){status.className='mailstatus ok';status.innerHTML='&#10003; Results submitted. '+name+' — <b>'+res.correct+'/'+res.total+' ('+pct+'%)</b>. Your teacher has been emailed. See marked answers above.';}
+      else{status.className='mailstatus warn';status.innerHTML='Your answers were graded (see above), but the email did not send: '+((d&&d.message)||'unknown error')+'. Please tell your teacher.';}
+    })
+    .catch(function(){status.className='mailstatus warn';status.innerHTML='Your answers were graded and marked above, but could not be emailed (no internet connection?). Check your connection and press <b>Submit</b> again.';});
+}
+</script>
+</body></html>
