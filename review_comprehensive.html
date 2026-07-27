@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comprehensive Course Review — THTI Foundation Mathematics II</title>
+<style>
+:root{
+  --navy:#0f3d5c; --navy2:#14547e; --teal:#0e8f8f; --gold:#f2b705;
+  --bg:#eef3f7; --card:#ffffff; --ink:#1c2b36; --muted:#5b6b78;
+  --good:#1e8e3e; --goodbg:#e6f4ea; --bad:#c5221f; --badbg:#fce8e6;
+  --line:#d7e1ea; --shadow:0 2px 10px rgba(15,61,92,.08);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+.wrap{max-width:860px;margin:0 auto;padding:0 18px 80px}
+header.top{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:26px 18px 22px;box-shadow:var(--shadow)}
+header.top .inner{max-width:860px;margin:0 auto}
+.badge{display:inline-block;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;background:rgba(255,255,255,.15);padding:4px 10px;border-radius:20px;margin-bottom:10px}
+header.top h1{margin:2px 0 6px;font-size:26px}
+header.top p{margin:0;opacity:.9;font-size:14px}
+.howto{background:#fff;border-left:5px solid var(--gold);border-radius:8px;padding:12px 16px;margin:18px 0;box-shadow:var(--shadow);font-size:14px}
+.howto b{color:var(--navy)}
+.scorebar{position:sticky;top:0;z-index:5;margin:14px 0 6px;padding:12px 16px;border-radius:8px;font-size:15px;text-align:center;box-shadow:var(--shadow)}
+.scorebar.idle{background:#fff;color:var(--muted)}
+.scorebar.good{background:var(--goodbg);color:var(--good);border:1px solid #bfe3c6}
+.scorebar.mid{background:#fff7e0;color:#8a6d00;border:1px solid #f0dd9b}
+.scorebar.low{background:var(--badbg);color:var(--bad);border:1px solid #f4c7c3}
+h2.section{margin:30px 0 8px;padding:8px 14px;background:var(--navy);color:#fff;border-radius:8px;font-size:16px;letter-spacing:.3px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:12px 0;box-shadow:var(--shadow);transition:border-color .2s}
+.q.correct{border-color:#bfe3c6;box-shadow:0 0 0 2px #bfe3c6 inset}
+.q.wrong{border-color:#f4c7c3;box-shadow:0 0 0 2px #f4c7c3 inset}
+.qhead{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.qnum{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:28px;background:var(--teal);color:#fff;border-radius:50%;font-weight:700;font-size:14px;padding:0 6px}
+.tag{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--teal);border:1px solid var(--teal);border-radius:12px;padding:1px 8px}
+.reroll{margin-left:auto;background:#f0f7f7;color:var(--teal);border:1px solid #cbe6e6;border-radius:16px;padding:4px 12px;font-size:13px;cursor:pointer}
+.reroll:hover{background:var(--teal);color:#fff}
+.prompt{font-size:16px;margin-bottom:10px}
+.prompt code,.mono{font-family:"Consolas",monospace;background:#f4f7fa;padding:1px 6px;border-radius:5px}
+.choices{display:grid;gap:8px}
+.choice{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;cursor:pointer;transition:background .15s}
+.choice:hover{background:#f4f9fc}
+.choice input{accent-color:var(--teal);width:18px;height:18px}
+.choice .ltr{font-weight:700;color:var(--navy);min-width:18px}
+.choice.mark-correct{background:var(--goodbg);border-color:#bfe3c6}
+.choice.mark-wrong{background:var(--badbg);border-color:#f4c7c3}
+.answerline{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.answerline .unit{color:var(--muted);font-size:15px}
+.answerline .unit.pre{order:-1}
+input.ans{font-size:16px;padding:9px 12px;border:2px solid var(--line);border-radius:8px;width:200px;max-width:60%}
+input.ans:focus{outline:none;border-color:var(--teal)}
+input.ans.good{border-color:var(--good);background:var(--goodbg)}
+input.ans.bad{border-color:var(--bad);background:var(--badbg)}
+.feedback{margin-top:10px;padding:9px 12px;background:#f7fafc;border-radius:8px;font-size:14px;border:1px solid var(--line)}
+.feedback .ok{color:var(--good)}
+.feedback .no{color:var(--bad)}
+.frac{display:inline-flex;flex-direction:column;text-align:center;vertical-align:middle;margin:0 3px;font-size:.9em}
+.frac .top{border-bottom:1.5px solid currentColor;padding:0 4px;line-height:1.1}
+.frac .bot{padding:0 4px;line-height:1.1}
+.controls{position:sticky;bottom:0;display:flex;gap:12px;justify-content:center;padding:14px;margin-top:24px;background:rgba(238,243,247,.92);backdrop-filter:blur(4px);border-top:1px solid var(--line)}
+.btn{border:none;border-radius:24px;padding:12px 26px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:var(--shadow)}
+.btn.primary{background:var(--teal);color:#fff}
+.btn.primary:hover{background:#0b7a7a}
+.btn.ghost{background:#fff;color:var(--navy);border:1px solid var(--line)}
+.btn.ghost:hover{background:#eaf2f8}
+footer{text-align:center;color:var(--muted);font-size:13px;padding:24px 0 8px}
+@media print{.controls,.reroll,.scorebar{display:none}}
+</style>
+</head>
+<body>
+<header class="top"><div class="inner">
+  <span class="badge">Tobago Hospitality Institute · GED 001 · Foundation Mathematics II</span>
+  <h1>Comprehensive Course Review</h1>
+  <p>All 14 sessions &middot; Number Theory &rarr; Consumer Arithmetic &middot; 53 questions, simple to advanced</p>
+</div></header>
+<div class="wrap">
+  <div class="howto"><b>How to use:</b> Answer every question — pick a letter for multiple choice, or type into the box for short answers. Then press <b>Check my answers</b> for instant marking, your score, and worked explanations. Questions marked <b>random</b> use changing numbers: press <b>&#8635; new numbers</b> on any one, or <b>New numbers</b> at the bottom, to get a fresh version. Short answers accept fractions (like <span class='mono'>3/4</span>) or decimals.</div>
+  <div id="scorebar" class="scorebar idle"></div>
+  <div id="quiz"></div>
+  <div class="controls">
+    <button id="checkBtn" class="btn primary">Check my answers</button>
+    <button id="newBtn" class="btn ghost">&#8635; New numbers (whole quiz)</button>
+  </div>
+  <footer>THTI · Foundation Mathematics II · Self-marking practice quiz. Questions tagged <b>random</b> generate fresh numbers each time — reload or press "New numbers" to practise again.</footer>
+</div>
+<script>
+/* ===== COMPREHENSIVE REVIEW - all 14 sessions, simple -> advanced ===== */
+var QUESTIONS=[
+
+/* ---- A. Number Theory & Place Value (Session 1) ---- */
+{section:"A. Number Theory & Place Value",random:false,build:function(){
+  return makeMCQ("Which number is <b>both even and prime</b>?",2,[1,4,9,17],
+    "2 is the only even prime number — every other even number is divisible by 2.");}},
+{section:"A. Number Theory & Place Value",random:false,build:function(){
+  return makeMCQ("Which shows <b>4 073</b> written in expanded (place-value) notation?",
+    "4000 + 70 + 3",["400 + 70 + 3","4000 + 700 + 3","4000 + 73"],
+    "The 4 is thousands, the 0 is hundreds, the 7 is tens, the 3 is units: 4000 + 0 + 70 + 3.");}},
+{section:"A. Number Theory & Place Value",random:true,build:function(){
+  var place=pick([10,100,1000]);var name={10:"tens",100:"hundreds",1000:"thousands"}[place];
+  var n=R(11,98)*1000+R(0,999);var digit=Math.floor(n/place)%10;var ans=digit*place;
+  return {type:'short',prompt:"In the number <b>"+n.toLocaleString()+"</b>, what is the <b>place value</b> of the digit in the "+name+" place? (i.e. the digit × its place)",
+    answer:ans,tol:0,explain:"The "+name+" digit is "+digit+", and its place value is "+digit+" × "+place+" = "+ans+"."};}},
+{section:"A. Number Theory & Place Value",random:true,build:function(){
+  var place=pick([10,100,1000]);var name={10:"nearest 10",100:"nearest 100",1000:"nearest 1000"}[place];
+  var n=R(place===1000?1200:120, place===1000?9800:9800);
+  var ans=Math.round(n/place)*place;
+  return makeMCQ("Round <b>"+n.toLocaleString()+"</b> to the <b>"+name+"</b>.",ans,
+    [ans-place, ans+place, Math.floor(n/place)*place-place],
+    "Look at the digit to the right of the "+name.split(' ')[1]+" place: 5 or more rounds up, 4 or less rounds down. "+n+" → "+ans+".",
+    function(x){return Number(x).toLocaleString();});}},
+
+/* ---- B. Basic Operations & Word Problems (Session 2) ---- */
+{section:"B. Basic Operations & Word Problems",random:true,build:function(){
+  var a=R(1250,8900),b=R(1050,6800);return {type:'short',prompt:"Add: <span class='mono'>"+a.toLocaleString()+" + "+b.toLocaleString()+"</span>",
+    answer:a+b,tol:0,explain:"Line up the place values and add: "+a+" + "+b+" = "+(a+b)+"."};}},
+{section:"B. Basic Operations & Word Problems",random:true,build:function(){
+  var a=R(5200,9800),b=R(1100,5000);return {type:'short',prompt:"Subtract: <span class='mono'>"+a.toLocaleString()+" − "+b.toLocaleString()+"</span>",
+    answer:a-b,tol:0,explain:a+" − "+b+" = "+(a-b)+"."};}},
+{section:"B. Basic Operations & Word Problems",random:true,build:function(){
+  var a=R(23,98),b=R(13,49);return {type:'short',prompt:"Multiply (long multiplication): <span class='mono'>"+a+" × "+b+"</span>",
+    answer:a*b,tol:0,explain:a+" × "+b+" = "+(a*b)+"."};}},
+{section:"B. Basic Operations & Word Problems",random:true,build:function(){
+  var d=R(6,19),q=R(23,89),n=d*q;return {type:'short',prompt:"Divide: <span class='mono'>"+n+" ÷ "+d+"</span>",
+    answer:q,tol:0,explain:n+" ÷ "+d+" = "+q+" (since "+d+" × "+q+" = "+n+")."};}},
+{section:"B. Basic Operations & Word Problems",random:true,build:function(){
+  var f=R(6,15),r=R(14,32);return {type:'short',prompt:"A hotel has <b>"+f+" floors</b> with <b>"+r+" rooms</b> on each floor. How many rooms are there in total?",
+    answer:f*r,tol:0,unit:"rooms",explain:"Total = rooms per floor × floors = "+r+" × "+f+" = "+(f*r)+" rooms."};}},
+{section:"B. Basic Operations & Word Problems",random:true,build:function(){
+  var t=R(6,15),per=R(8,18),n=t*per;return {type:'short',prompt:"A banquet has <b>"+n+" chairs</b> shared equally among <b>"+t+" tables</b>. How many chairs are at each table?",
+    answer:per,tol:0,unit:"chairs",explain:n+" ÷ "+t+" = "+per+" chairs per table."};}},
+
+/* ---- C. Order of Operations (Session 3) ---- */
+{section:"C. Order of Operations",random:true,build:function(){
+  var a=R(4,19),b=R(3,9),c=R(3,9);return {type:'short',prompt:"Evaluate (follow the order of operations): <span class='mono'>"+a+" + "+b+" × "+c+"</span>",
+    answer:a+b*c,tol:0,explain:"Multiply before adding: "+b+"×"+c+" = "+(b*c)+", then "+a+" + "+(b*c)+" = "+(a+b*c)+"."};}},
+{section:"C. Order of Operations",random:true,build:function(){
+  var a=R(3,12),b=R(3,12),c=R(3,8),d=R(2,15);return {type:'short',prompt:"Evaluate: <span class='mono'>("+a+" + "+b+") × "+c+" − "+d+"</span>",
+    answer:(a+b)*c-d,tol:0,explain:"Brackets first: "+a+"+"+b+" = "+(a+b)+"; ×"+c+" = "+((a+b)*c)+"; −"+d+" = "+((a+b)*c-d)+"."};}},
+{section:"C. Order of Operations",random:true,build:function(){
+  var a=R(3,9),b=R(4,9),c=R(2,6);var ans=a+b*b-c;
+  return {type:'short',prompt:"Evaluate (mind the power): <span class='mono'>"+a+" + "+b+"² − "+c+"</span>",
+    answer:ans,tol:0,explain:"Powers first: "+b+"² = "+(b*b)+". Then "+a+" + "+(b*b)+" − "+c+" = "+ans+"."};}},
+{section:"C. Order of Operations",random:true,build:function(){
+  var c=R(2,6),d=R(2,5),s=c*d;var a=R(2,9),b=R(2,9),e=R(1,8);var ans=(a+b)*s/d-e;
+  return makeMCQ("Evaluate: <span class='mono'>("+a+" + "+b+") × "+s+" ÷ "+d+" − "+e+"</span>",ans,
+    [(a+b)*s/d, a+b*s/d-e, (a+b)*s-e],
+    "Brackets, then × and ÷ left to right, then −. ("+a+"+"+b+")="+(a+b)+"; ×"+s+"="+((a+b)*s)+"; ÷"+d+"="+((a+b)*s/d)+"; −"+e+"="+ans+".");}},
+
+/* ---- D. Factors, Multiples & Primes (Session 4) ---- */
+{section:"D. Factors, Multiples & Primes",random:false,build:function(){
+  return makeMCQ("Which of these numbers is <b>prime</b>?",53,[51,57,49,63],
+    "53 has no factors other than 1 and itself. 51=3×17, 57=3×19, 49=7×7, 63=7×9.");}},
+{section:"D. Factors, Multiples & Primes",random:false,build:function(){
+  return makeMCQ("Which number is <b>NOT</b> a factor of <b>36</b>?",8,[9,12,6,4],
+    "Factors of 36: 1,2,3,4,6,9,12,18,36. 8 is not a factor (36÷8 is not a whole number).");}},
+{section:"D. Factors, Multiples & Primes",random:true,build:function(){
+  var g=R(3,9),a=g*R(2,6),b=g*R(2,6);while(gcd(a/g,b/g)!==1){b=g*R(2,7);}
+  return {type:'short',prompt:"Find the <b>Highest Common Factor (HCF)</b> of <b>"+a+"</b> and <b>"+b+"</b>.",
+    answer:gcd(a,b),tol:0,explain:"The largest number that divides both "+a+" and "+b+" exactly is "+gcd(a,b)+"."};}},
+{section:"D. Factors, Multiples & Primes",random:true,build:function(){
+  var a=R(3,9),b=R(3,12);while(a===b){b=R(3,12);}
+  return {type:'short',prompt:"Find the <b>Lowest Common Multiple (LCM)</b> of <b>"+a+"</b> and <b>"+b+"</b>.",
+    answer:lcm(a,b),tol:0,explain:"The smallest number both "+a+" and "+b+" divide into is "+lcm(a,b)+"."};}},
+{section:"D. Factors, Multiples & Primes",random:true,build:function(){
+  var primes=[23,29,31,37,41,43,47],comps=[21,27,33,35,39,45,49,51];
+  var isP=pick([true,false]);var n=isP?pick(primes):pick(comps);
+  return {type:'short',prompt:"Is <b>"+n+"</b> a prime number? Type <b>yes</b> or <b>no</b>.",
+    answer:isP?"yes":"no",explain:isP?n+" is prime — only 1 and "+n+" divide it.":n+" is composite (it has other factors), so it is not prime."};}},
+
+/* ---- E. Directed Numbers / Integers (Sessions 5-6) ---- */
+{section:"E. Directed Numbers (Integers)",random:true,build:function(){
+  var a=R(3,19),b=R(3,19);return {type:'short',prompt:"Add the integers: <span class='mono'>(−"+a+") + "+b+"</span>",
+    answer:b-a,tol:0,explain:"Start at −"+a+" and move "+b+" to the right: −"+a+" + "+b+" = "+(b-a)+"."};}},
+{section:"E. Directed Numbers (Integers)",random:true,build:function(){
+  var a=R(3,15),b=R(3,15);return {type:'short',prompt:"Subtract: <span class='mono'>"+a+" − (−"+b+")</span>",
+    answer:a+b,tol:0,explain:"Subtracting a negative is the same as adding: "+a+" + "+b+" = "+(a+b)+"."};}},
+{section:"E. Directed Numbers (Integers)",random:true,build:function(){
+  var a=R(3,12),b=R(3,12);return {type:'short',prompt:"Multiply: <span class='mono'>(−"+a+") × (−"+b+")</span>",
+    answer:a*b,tol:0,explain:"A negative times a negative is positive: "+a+" × "+b+" = "+(a*b)+"."};}},
+{section:"E. Directed Numbers (Integers)",random:true,build:function(){
+  var b=R(3,12),q=R(3,9),a=b*q;return {type:'short',prompt:"Divide: <span class='mono'>(−"+a+") ÷ "+b+"</span>",
+    answer:-q,tol:0,explain:"A negative divided by a positive is negative: −"+a+" ÷ "+b+" = −"+q+"."};}},
+{section:"E. Directed Numbers (Integers)",random:true,build:function(){
+  var set=shuffle([-R(5,20),-R(1,9),R(1,9),R(10,25)]);var small=Math.min.apply(null,set);
+  return makeMCQ("Which of these integers is the <b>smallest</b>?<br><span class='mono'>"+set.join(",  ")+"</span>",
+    small,set.filter(function(x){return x!==small;}),
+    "On a number line the smallest number is furthest to the left. The most negative value here is "+small+".");}},
+{section:"E. Directed Numbers (Integers)",random:true,build:function(){
+  var a=R(6,20),b=R(2,9);return {type:'short',prompt:"Evaluate the absolute-value expression: <span class='mono'>|−"+a+"| − "+b+"</span>",
+    answer:a-b,tol:0,explain:"|−"+a+"| = "+a+" (distance from 0). Then "+a+" − "+b+" = "+(a-b)+"."};}},
+{section:"E. Directed Numbers (Integers)",random:true,build:function(){
+  var a=R(2,9),b=R(2,6),c=R(2,6);var ans=-a+b*(-c);
+  return {type:'short',prompt:"Evaluate (order of operations with signs): <span class='mono'>−"+a+" + "+b+" × (−"+c+")</span>",
+    answer:ans,tol:0,explain:"Multiply first: "+b+"×(−"+c+") = −"+(b*c)+". Then −"+a+" + (−"+(b*c)+") = "+ans+"."};}},
+
+/* ---- F. Fractions (Sessions 7-8) ---- */
+{section:"F. Fractions",random:true,build:function(){
+  var g=R(2,9),n=R(2,7),d=n+R(1,6);var N=n*g,D=d*g;
+  return {type:'short',prompt:"Reduce the fraction "+frac(N,D)+" to its <b>lowest terms</b>. (Type it as a/b.)",
+    answer:n+"/"+d,tol:1e-9,explain:"Divide top and bottom by the HCF ("+g+"): "+frac(N,D)+" = "+frac(n,d)+"."};}},
+{section:"F. Fractions",random:true,build:function(){
+  var d=pick([4,5,6,8,10,12]);var a=R(1,d-1),b=R(1,d-1);var num=a+b;
+  return {type:'short',prompt:"Add: "+frac(a,d)+" + "+frac(b,d)+" &nbsp;(you may give a fraction or a decimal)",
+    answer:num/d,tol:0.01,explain:"Same denominator, so add the tops: "+frac(a+b,d)+" = "+round(num/d,4)+"."};}},
+{section:"F. Fractions",random:true,build:function(){
+  var d1=pick([2,3,4]),d2=pick([5,6,8]);var a=R(1,d1-1),b=R(1,d2-1);var L=lcm(d1,d2);
+  var val=a/d1 - b/d2;while(val<=0){b=R(1,d2-1);val=a/d1-b/d2;}
+  return {type:'short',prompt:"Subtract: "+frac(a,d1)+" − "+frac(b,d2)+" &nbsp;(fraction or decimal)",
+    answer:val,tol:0.01,explain:"Common denominator "+L+": "+frac(a*L/d1,L)+" − "+frac(b*L/d2,L)+" = "+frac(a*L/d1-b*L/d2,L)+" = "+round(val,4)+"."};}},
+{section:"F. Fractions",random:true,build:function(){
+  var a=R(1,5),b=R(2,6),c=R(1,5),d=R(2,6);
+  return {type:'short',prompt:"Multiply: "+frac(a,b)+" × "+frac(c,d)+" &nbsp;(fraction or decimal)",
+    answer:(a*c)/(b*d),tol:0.01,explain:"Multiply tops and bottoms: "+frac(a*c,b*d)+" = "+round(a*c/(b*d),4)+"."};}},
+{section:"F. Fractions",random:true,build:function(){
+  var a=R(1,5),b=R(2,7),c=R(1,5),d=R(2,7);
+  return {type:'short',prompt:"Divide: "+frac(a,b)+" ÷ "+frac(c,d)+" &nbsp;(fraction or decimal)",
+    answer:(a*d)/(b*c),tol:0.01,explain:"Multiply by the reciprocal: "+frac(a,b)+" × "+frac(d,c)+" = "+frac(a*d,b*c)+" = "+round(a*d/(b*c),4)+"."};}},
+{section:"F. Fractions",random:true,build:function(){
+  var d=pick([3,4,5,6,8]);var w=R(2,5),r=R(1,d-1);var N=w*d+r;
+  return {type:'short',prompt:"Convert the improper fraction "+frac(N,d)+" to a mixed number. What is the <b>whole-number part</b>?",
+    answer:w,tol:0,explain:N+" ÷ "+d+" = "+w+" remainder "+r+", so "+frac(N,d)+" = "+w+" "+frac(r,d)+"."};}},
+{section:"F. Fractions",random:true,build:function(){
+  var d=pick([3,4,5,6,8]);var n=R(1,d-1);var mult=R(3,9);var Q=d*mult;
+  return {type:'short',prompt:"Find "+frac(n,d)+" of <b>"+Q+"</b>.",
+    answer:n*Q/d,tol:0.001,explain:frac(n,d)+" of "+Q+" = ("+Q+" ÷ "+d+") × "+n+" = "+(Q/d)+" × "+n+" = "+(n*Q/d)+"."};}},
+
+/* ---- G. Decimals (Sessions 9-10) ---- */
+{section:"G. Decimals",random:true,build:function(){
+  var a=round(R(150,899)/10,1),b=round(R(150,899)/10,1);
+  return {type:'short',prompt:"Add: <span class='mono'>"+a.toFixed(1)+" + "+b.toFixed(1)+"</span>",
+    answer:round(a+b,1),tol:0.001,explain:"Line up the decimal points and add: "+(a+b).toFixed(1)+"."};}},
+{section:"G. Decimals",random:true,build:function(){
+  var a=round(R(500,950)/10,1),b=round(R(100,450)/10,1);
+  return {type:'short',prompt:"Subtract: <span class='mono'>"+a.toFixed(1)+" − "+b.toFixed(1)+"</span>",
+    answer:round(a-b,1),tol:0.001,explain:"Align the points and subtract: "+(a-b).toFixed(1)+"."};}},
+{section:"G. Decimals",random:true,build:function(){
+  var a=round(R(15,95)/10,1),b=R(3,12);
+  return {type:'short',prompt:"Multiply: <span class='mono'>"+a.toFixed(1)+" × "+b+"</span>",
+    answer:round(a*b,1),tol:0.001,explain:a+" × "+b+" = "+round(a*b,1)+" (one decimal place)."};}},
+{section:"G. Decimals",random:true,build:function(){
+  var x=round(R(1000,9999)/1000,3);
+  return {type:'short',prompt:"Round <span class='mono'>"+x.toFixed(3)+"</span> to <b>2 decimal places</b>.",
+    answer:round(x,2),tol:0.001,explain:"Look at the 3rd decimal: 5+ rounds up. "+x.toFixed(3)+" → "+round(x,2).toFixed(2)+"."};}},
+{section:"G. Decimals",random:true,build:function(){
+  var set=shuffle([round(R(10,99)/100,2),round(R(100,199)/100,2),round(R(200,350)/100,2),round(R(351,499)/100,2)]);
+  var big=Math.max.apply(null,set);
+  return makeMCQ("Which decimal is the <b>largest</b>?<br><span class='mono'>"+set.map(function(x){return x.toFixed(2);}).join(",  ")+"</span>",
+    big,set.filter(function(x){return x!==big;}),
+    "Compare whole parts first, then tenths, then hundredths. The largest is "+big.toFixed(2)+".",
+    function(x){return Number(x).toFixed(2);});}},
+{section:"G. Decimals",random:true,build:function(){
+  var d=pick([2,4,5,8,10]);var n=R(1,d-1);
+  return {type:'short',prompt:"Convert "+frac(n,d)+" to a <b>decimal</b>.",
+    answer:round(n/d,4),tol:0.001,explain:n+" ÷ "+d+" = "+round(n/d,4)+"."};}},
+
+/* ---- H. Ratio, Rate & Proportion (Session 11) ---- */
+{section:"H. Ratio, Rate & Proportion",random:true,build:function(){
+  var g=R(2,9),a=R(2,6),b=R(2,6);while(gcd(a,b)!==1){b=R(2,7);}var A=a*g,B=b*g;
+  return {type:'short',prompt:"Express the ratio <b>"+A+" : "+B+"</b> in its <b>simplest form</b>. (Type as x:y)",
+    answer:a+":"+b,explain:"Divide both parts by the HCF ("+g+"): "+A+":"+B+" = "+a+":"+b+"."};}},
+{section:"H. Ratio, Rate & Proportion",random:true,build:function(){
+  var a=R(2,5),b=R(2,5);while(a===b){b=R(2,6);}var part=R(30,120),total=part*(a+b);
+  return {type:'short',prompt:"Divide <b>$"+total+"</b> between two people in the ratio <b>"+a+" : "+b+"</b>. How much does the person with the <b>larger</b> share get?",
+    answer:part*Math.max(a,b),tol:0,unit:"$",explain:"Total parts = "+a+"+"+b+" = "+(a+b)+". One part = $"+total+" ÷ "+(a+b)+" = $"+part+". Larger share = "+Math.max(a,b)+" × $"+part+" = $"+part*Math.max(a,b)+"."};}},
+{section:"H. Ratio, Rate & Proportion",random:true,build:function(){
+  var per=R(2,9),qty=R(3,8),cost=per*qty;
+  return {type:'short',prompt:"If <b>"+qty+"</b> identical pens cost <b>$"+cost+"</b>, what is the cost of <b>one</b> pen?",
+    answer:per,tol:0.001,unit:"$",explain:"Unit rate = $"+cost+" ÷ "+qty+" = $"+per+" per pen."};}},
+{section:"H. Ratio, Rate & Proportion",random:true,build:function(){
+  var per=R(2,7),a=R(2,5),b=R(6,12);var cost=per*a;var want=per*b;
+  return {type:'short',prompt:"<b>"+a+"</b> notebooks cost <b>$"+cost+"</b>. At the same rate, how much do <b>"+b+"</b> notebooks cost?",
+    answer:want,tol:0.001,unit:"$",explain:"One notebook = $"+cost+" ÷ "+a+" = $"+per+". So "+b+" cost "+b+" × $"+per+" = $"+want+"."};}},
+
+/* ---- I. Percentages (Sessions 12-13) ---- */
+{section:"I. Percentages",random:true,build:function(){
+  var p=pick([5,10,15,20,25,40,50,75]);var base=R(4,40)*20;
+  return {type:'short',prompt:"Calculate <b>"+p+"%</b> of <b>"+base+"</b>.",
+    answer:round(base*p/100,2),tol:0.01,explain:p+"% of "+base+" = "+p+"/100 × "+base+" = "+round(base*p/100,2)+"."};}},
+{section:"I. Percentages",random:true,build:function(){
+  var d=pick([2,4,5,10,20,25]);var n=R(1,d-1);
+  return {type:'short',prompt:"Convert "+frac(n,d)+" to a <b>percentage</b>.",
+    answer:round(n/d*100,2),tol:0.01,unit:"%",explain:frac(n,d)+" = "+n+" ÷ "+d+" = "+round(n/d,4)+" = "+round(n/d*100,2)+"%."};}},
+{section:"I. Percentages",random:true,build:function(){
+  var p=pick([10,20,25,40,50]);var whole=R(3,20)*10;var part=whole*p/100;
+  return {type:'short',prompt:"<b>"+part+"</b> is <b>"+p+"%</b> of what number?",
+    answer:whole,tol:0.01,explain:part+" ÷ ("+p+"/100) = "+part+" ÷ "+(p/100)+" = "+whole+"."};}},
+{section:"I. Percentages",random:true,build:function(){
+  var p=pick([5,10,15,20,25]);var base=R(4,30)*20;var nv=base*(1+p/100);
+  return {type:'short',prompt:"A price of <b>$"+base+"</b> is increased by <b>"+p+"%</b>. What is the <b>new price</b>?",
+    answer:round(nv,2),tol:0.01,unit:"$",explain:"Increase = "+p+"% of $"+base+" = $"+round(base*p/100,2)+". New price = $"+base+" + $"+round(base*p/100,2)+" = $"+round(nv,2)+"."};}},
+{section:"I. Percentages",random:true,build:function(){
+  var old=R(4,20)*10;var pc=pick([10,20,25,50]);var nv=old*(1+pc/100);
+  return {type:'short',prompt:"A value rises from <b>$"+old+"</b> to <b>$"+round(nv,2)+"</b>. What is the <b>percentage increase</b>?",
+    answer:pc,tol:0.1,unit:"%",explain:"Change = $"+round(nv-old,2)+". % change = change ÷ original × 100 = "+round(nv-old,2)+" ÷ "+old+" × 100 = "+pc+"%."};}},
+{section:"I. Percentages",random:true,build:function(){
+  var b=R(4,20)*5;var p=pick([10,20,25,40,50]);var a=b*p/100;
+  return makeMCQ("Express <b>"+a+"</b> as a <b>percentage</b> of <b>"+b+"</b>.",p+"%",
+    [(p/2)+"%",(p*2)+"%",(100-p)+"%"],
+    a+" ÷ "+b+" × 100 = "+p+"%.");}},
+
+/* ---- J. Consumer Arithmetic (Session 14) ---- */
+{section:"J. Consumer Arithmetic",random:true,build:function(){
+  var cp=R(5,40)*10;var profit=R(2,15)*5;var sp=cp+profit;
+  return {type:'short',prompt:"An item is bought for <b>$"+cp+"</b> and sold for <b>$"+sp+"</b>. What is the <b>profit</b>?",
+    answer:profit,tol:0,unit:"$",explain:"Profit = selling price − cost price = $"+sp+" − $"+cp+" = $"+profit+"."};}},
+{section:"J. Consumer Arithmetic",random:true,build:function(){
+  var price=R(4,30)*10;var d=pick([10,15,20,25,50]);var sale=price*(1-d/100);
+  return {type:'short',prompt:"A jacket marked <b>$"+price+"</b> is on sale at <b>"+d+"% off</b>. What is the <b>sale price</b>?",
+    answer:round(sale,2),tol:0.01,unit:"$",explain:"Discount = "+d+"% of $"+price+" = $"+round(price*d/100,2)+". Sale price = $"+price+" − $"+round(price*d/100,2)+" = $"+round(sale,2)+"."};}},
+{section:"J. Consumer Arithmetic",random:true,build:function(){
+  var P=R(4,20)*100;var r=pick([2,3,4,5,6,8,10]);var t=R(2,5);var I=P*r*t/100;
+  return {type:'short',prompt:"Find the <b>simple interest</b> on <b>$"+P+"</b> invested at <b>"+r+"% per year</b> for <b>"+t+" years</b>.",
+    answer:round(I,2),tol:0.01,unit:"$",explain:"I = (P × R × T) ÷ 100 = ("+P+" × "+r+" × "+t+") ÷ 100 = $"+round(I,2)+"."};}},
+{section:"J. Consumer Arithmetic",random:true,build:function(){
+  var cp=R(4,25)*20;var p=pick([10,20,25,50]);var sp=cp*(1+p/100);
+  return {type:'short',prompt:"A trader buys goods for <b>$"+cp+"</b> and wants a <b>"+p+"% profit</b>. What should the <b>selling price</b> be?",
+    answer:round(sp,2),tol:0.01,unit:"$",explain:"Profit = "+p+"% of $"+cp+" = $"+round(cp*p/100,2)+". Selling price = $"+cp+" + $"+round(cp*p/100,2)+" = $"+round(sp,2)+"."};}}
+
+];
+</script>
+<script>
+/* THTI Foundation Mathematics II - Shared Quiz Engine (self-contained, no libraries). */
+function R(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=b;b=a%b;a=t;}return a||1;}
+function lcm(a,b){return Math.abs(a*b)/gcd(a,b);}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function frac(n,d){return '<span class="frac"><span class="top">'+n+'</span><span class="bot">'+d+'</span></span>';}
+function money(x){return '$'+Number(x).toFixed(2);}
+function round(x,dp){var f=Math.pow(10,dp);return Math.round(x*f)/f;}
+function makeMCQ(prompt,correct,distractors,explain,fmt){
+  fmt=fmt||function(x){return ''+x;};
+  var seen={};seen[String(correct)]=1;var opts=[{v:correct,c:true}];
+  for(var k=0;k<distractors.length;k++){var d=distractors[k];if(!seen[String(d)]){seen[String(d)]=1;opts.push({v:d,c:false});}}
+  shuffle(opts);var ci=0;for(var i=0;i<opts.length;i++){if(opts[i].c)ci=i;}
+  return {type:'mcq',prompt:prompt,choices:opts.map(function(o){return fmt(o.v);}),correct:ci,explain:explain};
+}
+function parseNumeric(s){
+  s=(''+s).trim().replace(/[$,%\s]/g,'');
+  if(s.indexOf('/')>-1&&s.indexOf(':')===-1){var p=s.split('/');var a=parseFloat(p[0]),b=parseFloat(p[1]);if(!b||isNaN(a)||isNaN(b))return null;return a/b;}
+  var v=parseFloat(s);return isNaN(v)?null:v;
+}
+function gradeShort(spec,raw){
+  raw=(''+raw).trim();if(raw==='')return false;var ans=spec.answer;
+  if(typeof ans==='string'&&ans.indexOf(':')>-1){return raw.replace(/\s/g,'')===ans.replace(/\s/g,'');}
+  if(typeof ans==='string'&&parseNumeric(ans)===null){return raw.toLowerCase().replace(/\s/g,'')===ans.toLowerCase().replace(/\s/g,'');}
+  var target=parseNumeric(ans),got=parseNumeric(raw);
+  if(got===null||target===null)return false;
+  return Math.abs(got-target)<=(spec.tol!=null?spec.tol:1e-9);
+}
+var STATE=[];
+function letter(i){return String.fromCharCode(65+i);}
+function buildOne(idx){var q=QUESTIONS[idx];var spec=q.build();spec.section=q.section;spec.random=!!q.random;STATE[idx]=spec;return spec;}
+function renderQuestion(idx){
+  var spec=STATE[idx];var card=document.querySelector('.q[data-idx="'+idx+'"]');
+  var inner='<div class="prompt">'+spec.prompt+'</div>';
+  if(spec.type==='mcq'){
+    inner+='<div class="choices">';
+    for(var i=0;i<spec.choices.length;i++){inner+='<label class="choice"><input type="radio" name="q'+idx+'" value="'+i+'"><span class="ltr">'+letter(i)+'</span><span class="ctext">'+spec.choices[i]+'</span></label>';}
+    inner+='</div>';
+  }else{
+    var pre=(spec.unit&&spec.unit.charAt(0)==='$')?'<span class="unit pre">$</span>':'';
+    var post=(spec.unit&&spec.unit.charAt(0)!=='$')?'<span class="unit">'+spec.unit+'</span>':'';
+    inner+='<div class="answerline">'+pre+'<input class="ans" type="text" placeholder="type your answer" autocomplete="off">'+post+'</div>';
+  }
+  inner+='<div class="feedback" hidden></div>';
+  card.querySelector('.qbody').innerHTML=inner;card.classList.remove('correct','wrong');
+}
+function render(){
+  var root=document.getElementById('quiz');root.innerHTML='';var curSection=null,n=0;
+  for(var idx=0;idx<QUESTIONS.length;idx++){
+    var q=QUESTIONS[idx];
+    if(q.section!==curSection){curSection=q.section;var h=document.createElement('h2');h.className='section';h.textContent=curSection;root.appendChild(h);}
+    n++;buildOne(idx);
+    var card=document.createElement('div');card.className='q';card.dataset.idx=idx;
+    var reroll=q.random?'<button class="reroll" onclick="rerollOne('+idx+')" title="Fresh numbers">&#8635; new numbers</button>':'';
+    card.innerHTML='<div class="qhead"><span class="qnum">'+n+'</span>'+(q.random?'<span class="tag">random</span>':'')+reroll+'</div><div class="qbody"></div>';
+    root.appendChild(card);renderQuestion(idx);
+  }
+  updateScore(null);
+}
+function rerollOne(idx){buildOne(idx);renderQuestion(idx);updateScore(null);}
+function checkAll(){
+  var correct=0,total=QUESTIONS.length,answered=0;
+  for(var idx=0;idx<QUESTIONS.length;idx++){
+    var spec=STATE[idx];var card=document.querySelector('.q[data-idx="'+idx+'"]');var fb=card.querySelector('.feedback');
+    var isRight=false,didAnswer=false;
+    if(spec.type==='mcq'){
+      var sel=card.querySelector('input[name="q'+idx+'"]:checked');didAnswer=!!sel;isRight=sel&&Number(sel.value)===spec.correct;
+      var labs=card.querySelectorAll('.choice');
+      for(var i=0;i<labs.length;i++){labs[i].classList.remove('mark-correct','mark-wrong');if(i===spec.correct)labs[i].classList.add('mark-correct');if(sel&&Number(sel.value)===i&&i!==spec.correct)labs[i].classList.add('mark-wrong');}
+    }else{
+      var inp=card.querySelector('.ans');didAnswer=inp.value.trim()!=='';isRight=gradeShort(spec,inp.value);
+      inp.classList.toggle('good',isRight);inp.classList.toggle('bad',didAnswer&&!isRight);
+    }
+    if(didAnswer)answered++;if(isRight)correct++;
+    card.classList.toggle('correct',isRight);card.classList.toggle('wrong',didAnswer&&!isRight);
+    var msg=isRight?'<b class="ok">&#10003; Correct.</b> ':'<b class="no">&#10007; Not quite.</b> ';
+    if(!isRight){
+      if(spec.type==='short'){var u1=(spec.unit&&spec.unit.charAt(0)==='$')?'$':'';var u2=(spec.unit&&spec.unit.charAt(0)!=='$')?' '+spec.unit:'';msg+='Answer: <b>'+u1+spec.answer+u2+'</b>. ';}
+      else{msg+='Answer: <b>'+letter(spec.correct)+'</b>. ';}
+    }
+    msg+=spec.explain||'';fb.innerHTML=msg;fb.hidden=false;
+  }
+  updateScore({correct:correct,total:total,answered:answered});
+  document.getElementById('scorebar').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function updateScore(res){
+  var bar=document.getElementById('scorebar');
+  if(!res){bar.className='scorebar idle';bar.innerHTML='Answer the questions, then press <b>Check my answers</b>. Press <b>&#8635; new numbers</b> on any random question to practise it again with fresh values.';return;}
+  var pct=Math.round((res.correct/res.total)*100);var band='F';
+  if(pct>=85)band='A';else if(pct>=70)band='B';else if(pct>=55)band='C';else if(pct>=50)band='D';
+  bar.className='scorebar '+(pct>=70?'good':pct>=50?'mid':'low');
+  bar.innerHTML='Score: <b>'+res.correct+' / '+res.total+'</b> ('+pct+'%) &nbsp;&middot;&nbsp; Grade band: <b>'+band+'</b> &nbsp;&middot;&nbsp; Answered: '+res.answered+'/'+res.total;
+}
+function newQuiz(){render();window.scrollTo({top:0,behavior:'smooth'});}
+document.addEventListener('DOMContentLoaded',function(){render();document.getElementById('checkBtn').addEventListener('click',checkAll);document.getElementById('newBtn').addEventListener('click',newQuiz);});
+</script>
+</body></html>
