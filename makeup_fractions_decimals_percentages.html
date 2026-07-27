@@ -83,7 +83,7 @@ footer{text-align:center;color:var(--muted);font-size:13px;padding:24px 0 8px}
   <p>Simplifying, converting &amp; calculating &middot; 23 questions</p>
 </div></header>
 <div class="wrap">
-  <div class="howto"><b>For students who missed the Fractions, Decimals &amp; Percentages topics.</b> Type your name, then answer each question. Type fractions as <span class='mono'>a/b</span> (e.g. <span class='mono'>3/4</span>) or as decimals. Press <b>Submit</b> to mark your work and email your score to your teacher; press <b>&#8635; new numbers</b> to practise again.</div>
+  <div class="howto"><b>For students who missed the Fractions, Decimals &amp; Percentages topics.</b> Type your name, then answer each question. Type fractions as <span class='mono'>a/b</span> (e.g. <span class='mono'>3/4</span>), mixed numbers as <span class='mono'>2 3/4</span>, or use decimals. Press <b>Submit</b> to mark your work and email your score to your teacher; press <b>&#8635; new numbers</b> to practise again.</div>
   <div class="namecard">
     <label for="studentName"><b>Student name</b> — required. When you press Submit, your marked results are emailed to your teacher.</label>
     <input id="studentName" type="text" placeholder="Type your full name" autocomplete="name">
@@ -143,8 +143,8 @@ var QUESTIONS=[
     answer:d+"/"+n,tol:1e-9,explain:"The reciprocal flips the fraction upside down: "+frac(n,d)+" → "+frac(d,n)+"."};}},
 {section:"Part 1 — Fractions",random:true,build:function(){
   var d=pick([3,4,5,6,8]);var w=R(2,5),r=R(1,d-1);var N=w*d+r;
-  return {type:'short',prompt:"Convert "+frac(N,d)+" to a mixed number. Type the <b>whole-number part</b>.",
-    answer:w,tol:0,explain:N+" ÷ "+d+" = "+w+" remainder "+r+", so "+frac(N,d)+" = "+w+" "+frac(r,d)+"."};}},
+  return {type:'short',prompt:"Convert "+frac(N,d)+" to a mixed number. Type the whole number and fraction together, like <span class='mono'>2 3/4</span>.",
+    answer:w+" "+r+"/"+d,tol:0.001,explain:N+" ÷ "+d+" = "+w+" remainder "+r+", so "+frac(N,d)+" = <b>"+w+" "+frac(r,d)+"</b>. (Typing the improper fraction "+frac(N,d)+" or the decimal also works.)"};}},
 {section:"Part 1 — Fractions",random:true,build:function(){
   var d=pick([3,4,5,6,8,10]);var n=R(1,d-1);var q=d*R(4,12);
   return {type:'short',prompt:"Find "+frac(n,d)+" of <b>"+q+"</b>.",
@@ -231,8 +231,12 @@ function makeMCQ(prompt,correct,distractors,explain,fmt){
   return {type:'mcq',prompt:prompt,choices:opts.map(function(o){return fmt(o.v);}),correct:ci,explain:explain};
 }
 function parseNumeric(s){
-  s=(''+s).trim().replace(/[$,%\s]/g,'');
-  if(s.indexOf('/')>-1&&s.indexOf(':')===-1){var p=s.split('/');var a=parseFloat(p[0]),b=parseFloat(p[1]);if(!b||isNaN(a)||isNaN(b))return null;return a/b;}
+  s=(''+s).trim().replace(/[$,%]/g,'');
+  if(s.indexOf(':')>-1)return null;
+  var mm=s.match(/^(-?\d+)\s+(\d+)\s*\/\s*(\d+)$/);
+  if(mm){var w=parseInt(mm[1],10),n=parseInt(mm[2],10),d=parseInt(mm[3],10);if(!d)return null;var sg=w<0?-1:1;return w+sg*(n/d);}
+  s=s.replace(/\s/g,'');
+  if(s.indexOf('/')>-1){var p=s.split('/');var a=parseFloat(p[0]),b=parseFloat(p[1]);if(!b||isNaN(a)||isNaN(b))return null;return a/b;}
   var v=parseFloat(s);return isNaN(v)?null:v;
 }
 function gradeShort(spec,raw){
