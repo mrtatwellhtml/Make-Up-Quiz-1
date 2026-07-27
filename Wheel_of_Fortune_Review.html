@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wheel of Fortune — Foundation Mathematics II Review</title>
+<style>
+  /* ============================================================
+     TEACHER NOTES
+     - This is a self-contained review game. No internet needed.
+     - To EDIT / ADD QUESTIONS: scroll to the "QUESTION BANK" section
+       in the <script> near the bottom. Each topic has an array of
+       questions. Copy an existing question object and change the text.
+     - To rename teams: use the setup screen when the game loads.
+     ============================================================ */
+  :root{
+    --bg1:#1b1147; --bg2:#3a1c71; --gold:#ffd23f; --gold2:#ffb300;
+    --ink:#1a1030; --card:#ffffff; --good:#1db954; --bad:#e63946;
+    --panel:rgba(255,255,255,.08);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:"Segoe UI",system-ui,Arial,sans-serif;
+    background:radial-gradient(1200px 700px at 50% -10%,var(--bg2),var(--bg1));
+    color:#fff; min-height:100vh; padding:18px;
+  }
+  h1{ text-align:center; margin:.2em 0; font-size:clamp(22px,4vw,40px);
+      text-shadow:0 2px 0 #0006; }
+  h1 .glow{ color:var(--gold); }
+  .subtitle{ text-align:center; opacity:.85; margin-top:-.2em; font-size:14px; }
+
+  .layout{ display:flex; flex-wrap:wrap; gap:24px; justify-content:center;
+           align-items:flex-start; max-width:1100px; margin:14px auto; }
+
+  /* ---- Wheel ---- */
+  .wheel-wrap{ position:relative; width:min(440px,92vw); }
+  .pointer{ position:absolute; top:-6px; left:50%; transform:translateX(-50%);
+            width:0;height:0; border-left:20px solid transparent;
+            border-right:20px solid transparent; border-top:34px solid var(--gold);
+            filter:drop-shadow(0 2px 3px #0008); z-index:5; }
+  .wheel{ width:100%; aspect-ratio:1/1; border-radius:50%;
+          box-shadow:0 0 0 10px #12093a,0 0 0 16px var(--gold),0 12px 40px #0009;
+          transition:transform 5s cubic-bezier(.17,.67,.14,1); }
+  .hub{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+        width:64px;height:64px; border-radius:50%; background:var(--gold);
+        border:5px solid #12093a; display:flex; align-items:center; justify-content:center;
+        font-weight:800; color:#12093a; font-size:12px; z-index:4; cursor:pointer;
+        user-select:none; }
+  .hub:active{ transform:translate(-50%,-50%) scale(.95); }
+
+  .spin-btn{ display:block; margin:16px auto 0; background:linear-gradient(var(--gold),var(--gold2));
+             color:#12093a; border:none; padding:14px 34px; font-size:20px; font-weight:800;
+             border-radius:40px; cursor:pointer; box-shadow:0 5px 0 #b37e00; }
+  .spin-btn:active{ transform:translateY(3px); box-shadow:0 2px 0 #b37e00; }
+  .spin-btn:disabled{ filter:grayscale(.6) brightness(.8); cursor:not-allowed; }
+
+  /* ---- Side panel ---- */
+  .side{ width:min(420px,92vw); }
+  .scoreboard{ background:var(--panel); border:1px solid #ffffff22; border-radius:16px;
+               padding:14px; }
+  .scoreboard h2{ margin:.1em 0 .5em; font-size:16px; letter-spacing:.5px; opacity:.9;}
+  .team{ display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:10px;
+         margin-bottom:6px; background:#ffffff10; }
+  .team.active{ outline:2px solid var(--gold); background:#ffd23f22; }
+  .team .dot{ width:14px;height:14px;border-radius:50%; }
+  .team .name{ flex:1; font-weight:700; }
+  .team .score{ font-weight:800; font-size:20px; color:var(--gold); min-width:46px; text-align:right;}
+  .turn-note{ text-align:center; font-size:13px; opacity:.85; margin-top:8px;}
+  .progress{ text-align:center; font-size:12px; opacity:.7; margin-top:6px;}
+
+  .mini-btn{ background:#ffffff1a; color:#fff; border:1px solid #ffffff30; border-radius:8px;
+             padding:6px 12px; cursor:pointer; font-size:13px; }
+  .mini-btn:hover{ background:#ffffff2e; }
+  .row{ display:flex; gap:8px; justify-content:center; margin-top:12px; flex-wrap:wrap;}
+
+  /* ---- Modal ---- */
+  .overlay{ position:fixed; inset:0; background:#0009; backdrop-filter:blur(3px);
+            display:none; align-items:center; justify-content:center; padding:16px; z-index:20;}
+  .overlay.show{ display:flex; }
+  .modal{ background:var(--card); color:var(--ink); border-radius:18px; width:min(620px,96vw);
+          padding:22px; box-shadow:0 20px 60px #000a; animation:pop .25s ease;}
+  @keyframes pop{ from{transform:scale(.9);opacity:0;} to{transform:scale(1);opacity:1;} }
+  .badge{ display:inline-block; background:var(--bg2); color:#fff; padding:4px 12px;
+          border-radius:20px; font-size:12px; font-weight:700; }
+  .points-badge{ float:right; background:var(--gold); color:#12093a; padding:4px 12px;
+                 border-radius:20px; font-weight:800; }
+  .q-text{ font-size:20px; font-weight:700; margin:14px 0 16px; line-height:1.35; }
+  .options{ display:grid; gap:10px; }
+  .opt{ text-align:left; background:#f4f2fb; border:2px solid #e3def5; color:var(--ink);
+        padding:13px 15px; border-radius:12px; font-size:16px; cursor:pointer; transition:.15s;}
+  .opt:hover{ border-color:var(--bg2); }
+  .opt.correct{ background:#dff5e6; border-color:var(--good); }
+  .opt.wrong{ background:#fbe0e3; border-color:var(--bad); }
+  .opt:disabled{ cursor:default; }
+  .feedback{ margin-top:14px; font-size:15px; min-height:20px; }
+  .feedback.good{ color:#0f8a3c; font-weight:700; }
+  .feedback.bad{ color:#c1121f; font-weight:700; }
+  .next-btn{ margin-top:16px; width:100%; background:var(--bg2); color:#fff; border:none;
+             padding:13px; border-radius:12px; font-size:16px; font-weight:700; cursor:pointer;
+             display:none; }
+  .next-btn.show{ display:block; }
+
+  /* ---- Setup ---- */
+  .setup .modal{ text-align:center; }
+  .setup input{ padding:10px; border-radius:8px; border:1px solid #ccc; margin:4px;
+                width:200px; font-size:15px; }
+  .setup label{ display:block; margin:10px 0 4px; font-weight:700; }
+  .winner{ font-size:26px; text-align:center; color:var(--bg2); font-weight:800; }
+  small.hint{ display:block; text-align:center; opacity:.6; margin-top:14px; font-size:12px;}
+</style>
+</head>
+<body>
+  <h1>🎡 Wheel of <span class="glow">Fortune</span></h1>
+  <p class="subtitle">Foundation Mathematics II — Whole-Course Review Game</p>
+
+  <div class="layout">
+    <div class="wheel-wrap">
+      <div class="pointer"></div>
+      <svg class="wheel" id="wheel" viewBox="0 0 400 400"></svg>
+      <div class="hub" id="hub">SPIN</div>
+    </div>
+
+    <div class="side">
+      <button class="spin-btn" id="spinBtn">SPIN THE WHEEL</button>
+      <div class="scoreboard" style="margin-top:16px;">
+        <h2>SCOREBOARD</h2>
+        <div id="teams"></div>
+        <div class="turn-note" id="turnNote"></div>
+        <div class="progress" id="progress"></div>
+      </div>
+      <div class="row">
+        <button class="mini-btn" id="skipBtn">Skip turn ▶</button>
+        <button class="mini-btn" id="resetBtn">↻ New game</button>
+      </div>
+      <small class="hint">Spin → answer the topic question → earn the points. First team to finish strong wins!</small>
+    </div>
+  </div>
+
+  <!-- Question modal -->
+  <div class="overlay" id="qOverlay">
+    <div class="modal">
+      <span class="badge" id="qTopic">Topic</span>
+      <span class="points-badge" id="qPoints">+100</span>
+      <div class="q-text" id="qText"></div>
+      <div class="options" id="qOptions"></div>
+      <div class="feedback" id="qFeedback"></div>
+      <button class="next-btn" id="nextBtn">Continue ▶</button>
+    </div>
+  </div>
+
+  <!-- Setup / winner modal -->
+  <div class="overlay setup show" id="setupOverlay">
+    <div class="modal">
+      <h2 style="margin-top:0;color:var(--bg2)">Set up your teams</h2>
+      <div id="teamInputs"></div>
+      <label>Number of teams</label>
+      <select id="numTeams" style="padding:8px;border-radius:8px;">
+        <option>1</option><option selected>2</option><option>3</option><option>4</option>
+      </select>
+      <br><br>
+      <button class="spin-btn" id="startBtn" style="margin:0 auto;">Start Game</button>
+      <small class="hint">Tip: play in teams for a lively class review, or solo to self-test.</small>
+    </div>
+  </div>
+
+<script>
+/* ============================================================
+   QUESTION BANK  —  edit freely.
+   Each topic = { name, color, questions:[ {q, options:[...], answer:index, why} ] }
+   "answer" is the 0-based index of the correct option.
+   ============================================================ */
+const TOPICS = [
+  { name:"Number Theory", color:"#e63946", questions:[
+    {q:"Which of these is a prime number?", options:["21","27","29","33"], answer:2,
+     why:"29 has only two factors: 1 and 29."},
+    {q:"What is 4 507 in expanded notation?", options:["4000+500+7","400+50+7","4000+50+7","4000+507"], answer:0,
+     why:"4 thousands + 5 hundreds + 0 tens + 7 ones = 4000+500+7."},
+    {q:"Round 6 748 to the nearest hundred.", options:["6 700","6 800","6 750","7 000"], answer:0,
+     why:"The digit after the hundreds place is 4, so we round down: 6 748 → 6 700."},
+    {q:"Which set contains only even numbers?", options:["2, 4, 7","6, 8, 10","1, 3, 5","5, 10, 15"], answer:1,
+     why:"Even numbers are divisible by 2: 6, 8, 10."},
+    {q:"The place value of 5 in 3 512 is:", options:["5","50","500","5 000"], answer:2,
+     why:"5 is in the hundreds place, so its value is 500."},
+    {q:"Which number is a factor of 24?", options:["5","7","8","9"], answer:2,
+     why:"8 divides 24 exactly (8 × 3 = 24)."},
+    {q:"Which number is a multiple of 6?", options:["14","16","18","20"], answer:2,
+     why:"18 = 6 × 3, so it is a multiple of 6."},
+    {q:"Which of these is a composite number?", options:["11","13","17","21"], answer:3,
+     why:"21 = 3 × 7, so it has factors besides 1 and itself."},
+    {q:"The value of the digit 3 in 8 391 is:", options:["3","30","300","3 000"], answer:2,
+     why:"3 is in the hundreds place, so its value is 300."},
+    {q:"Which of these is an odd number?", options:["12","14","15","18"], answer:2,
+     why:"15 is not divisible by 2, so it is odd."},
+  ]},
+  { name:"Basic Operations", color:"#f4a261", questions:[
+    {q:"3 486 + 2 517 = ?", options:["5 903","6 003","6 013","5 993"], answer:1,
+     why:"3486 + 2517 = 6003."},
+    {q:"A box holds 24 pens. How many pens in 15 boxes?", options:["300","360","320","345"], answer:1,
+     why:"24 × 15 = 360."},
+    {q:"744 ÷ 8 = ?", options:["92","93","83","94"], answer:1,
+     why:"8 × 93 = 744."},
+    {q:"9 000 − 3 675 = ?", options:["5 325","5 425","6 325","5 335"], answer:0,
+     why:"9000 − 3675 = 5325."},
+    {q:"A worker earns $85 a day. Earnings in 6 days?", options:["$480","$510","$505","$490"], answer:1,
+     why:"85 × 6 = 510."},
+    {q:"615 − 288 = ?", options:["327","337","333","323"], answer:0,
+     why:"615 − 288 = 327."},
+    {q:"36 × 12 = ?", options:["432","422","442","412"], answer:0,
+     why:"36 × 12 = 432."},
+    {q:"A school has 8 classes of 25 students. Total students?", options:["200","180","225","205"], answer:0,
+     why:"25 × 8 = 200."},
+    {q:"952 ÷ 7 = ?", options:["136","126","146","132"], answer:0,
+     why:"7 × 136 = 952."},
+    {q:"127 + 348 + 25 = ?", options:["500","480","510","495"], answer:0,
+     why:"127 + 348 + 25 = 500."},
+  ]},
+  { name:"Order of Ops", color:"#e9c46a", questions:[
+    {q:"Evaluate: 5 + 3 × 4", options:["32","17","23","20"], answer:1,
+     why:"Multiply first: 3×4=12, then 5+12 = 17."},
+    {q:"Evaluate: (8 − 2) × 3", options:["18","2","24","12"], answer:0,
+     why:"Brackets first: 8−2=6, then 6×3 = 18."},
+    {q:"Evaluate: 20 ÷ 4 + 6", options:["11","2","20","5"], answer:0,
+     why:"Divide first: 20÷4=5, then 5+6 = 11."},
+    {q:"Evaluate: 2 + 6 × (3 + 1)", options:["32","26","24","20"], answer:1,
+     why:"Brackets 4, then 6×4=24, then 2+24 = 26."},
+    {q:"Which operation comes FIRST in 7 + 12 ÷ 3?", options:["Addition","Division","Left to right","Neither"], answer:1,
+     why:"Division/multiplication before addition/subtraction."},
+    {q:"Evaluate: 10 − 2 × 3 + 1", options:["5","25","7","4"], answer:0,
+     why:"2×3=6 first, then 10 − 6 + 1 = 5."},
+    {q:"Evaluate: (6 + 4) ÷ 2", options:["5","8","7","10"], answer:0,
+     why:"Brackets first: 6+4=10, then 10 ÷ 2 = 5."},
+    {q:"Evaluate: 3² + 1", options:["10","7","9","4"], answer:0,
+     why:"Powers first: 3²=9, then 9 + 1 = 10."},
+    {q:"Evaluate: 12 ÷ (2 + 2) × 3", options:["9","1","18","3"], answer:0,
+     why:"Brackets 4, then 12÷4=3, then 3×3 = 9."},
+    {q:"In 8 × 2 + 5, which is done first?", options:["Multiplication","Addition","Left to right","Neither"], answer:0,
+     why:"Multiplication comes before addition."},
+  ]},
+  { name:"Directed Numbers", color:"#2a9d8f", questions:[
+    {q:"(−6) + (+9) = ?", options:["−3","+3","−15","+15"], answer:1,
+     why:"Start at −6, move up 9 → +3."},
+    {q:"(−4) − (−7) = ?", options:["−11","−3","+3","+11"], answer:2,
+     why:"Subtracting −7 is adding 7: −4+7 = 3."},
+    {q:"(−5) × (−3) = ?", options:["−15","+15","−8","+8"], answer:1,
+     why:"Negative × negative = positive: 15."},
+    {q:"Order from least to greatest: −2, 3, −7, 0", options:["−7,−2,0,3","−2,−7,0,3","3,0,−2,−7","−7,0,−2,3"], answer:0,
+     why:"Most negative first: −7, −2, 0, 3."},
+    {q:"The absolute value |−12| = ?", options:["−12","0","12","24"], answer:2,
+     why:"Absolute value is distance from 0, always non-negative: 12."},
+    {q:"(+7) + (−10) = ?", options:["−3","+3","−17","+17"], answer:0,
+     why:"Start at +7, move down 10 → −3."},
+    {q:"(−8) ÷ (−4) = ?", options:["2","−2","−32","32"], answer:0,
+     why:"Negative ÷ negative = positive: 2."},
+    {q:"(−3)² = ?", options:["9","−9","−6","6"], answer:0,
+     why:"(−3)×(−3) = 9."},
+    {q:"(−2) × (+5) × (−1) = ?", options:["10","−10","−7","7"], answer:0,
+     why:"(−2)×5 = −10, then ×(−1) = 10."},
+    {q:"The temperature rises from −5°C to 3°C. The change is:", options:["8°","−8°","2°","−2°"], answer:0,
+     why:"From −5 up to 3 is a rise of 8 degrees."},
+  ]},
+  { name:"Fractions", color:"#457b9d", questions:[
+    {q:"Reduce 12/18 to lowest terms.", options:["2/3","3/4","6/9","4/6"], answer:0,
+     why:"Divide top and bottom by 6: 12/18 = 2/3."},
+    {q:"1/4 + 2/4 = ?", options:["3/8","3/4","2/8","1/2"], answer:1,
+     why:"Same denominator: add tops → 3/4."},
+    {q:"Convert 7/3 to a mixed number.", options:["2 1/3","1 4/3","3 1/2","2 2/3"], answer:0,
+     why:"3 goes into 7 twice with 1 left: 2 1/3."},
+    {q:"1/2 × 3/5 = ?", options:["3/10","4/7","3/7","3/5"], answer:0,
+     why:"Multiply tops and bottoms: 3/10."},
+    {q:"The reciprocal of 4/9 is:", options:["9/4","−4/9","4/9","1/4"], answer:0,
+     why:"Flip the fraction: 9/4."},
+    {q:"2/3 − 1/3 = ?", options:["1/3","1/6","2/6","0"], answer:0,
+     why:"Same denominator: 2−1=1 → 1/3."},
+    {q:"Convert 2 1/4 to an improper fraction.", options:["9/4","7/4","8/4","6/4"], answer:0,
+     why:"(2×4)+1 = 9, over 4 → 9/4."},
+    {q:"3/4 ÷ 1/2 = ?", options:["3/2","3/8","6/8","2/3"], answer:0,
+     why:"Multiply by the reciprocal: 3/4 × 2/1 = 6/4 = 3/2."},
+    {q:"Which fraction is largest?", options:["1/2","2/3","3/4","1/4"], answer:2,
+     why:"3/4 = 0.75 is the biggest of the four."},
+    {q:"Reduce 5/10 to lowest terms.", options:["1/2","5/10","2/5","1/5"], answer:0,
+     why:"Divide top and bottom by 5: 1/2."},
+  ]},
+  { name:"Decimals", color:"#6a4c93", questions:[
+    {q:"Write 0.75 as a fraction in lowest terms.", options:["3/4","7/5","75/10","1/4"], answer:0,
+     why:"0.75 = 75/100 = 3/4."},
+    {q:"Round 3.148 to 1 decimal place.", options:["3.1","3.2","3.0","3.15"], answer:0,
+     why:"The next digit is 4, so round down: 3.1."},
+    {q:"Which is largest?", options:["0.7","0.68","0.709","0.69"], answer:2,
+     why:"0.709 > 0.700 > 0.69 > 0.68."},
+    {q:"2.5 × 0.4 = ?", options:["1.0","10","0.1","0.10"], answer:0,
+     why:"25×4=100, two decimal places → 1.0."},
+    {q:"0.6 + 0.45 = ?", options:["1.05","0.51","0.105","1.5"], answer:0,
+     why:"Line up decimals: 0.60 + 0.45 = 1.05."},
+    {q:"3.6 − 1.25 = ?", options:["2.35","2.45","2.25","1.35"], answer:0,
+     why:"3.60 − 1.25 = 2.35."},
+    {q:"Convert 1/4 to a decimal.", options:["0.25","0.5","0.4","0.14"], answer:0,
+     why:"1 ÷ 4 = 0.25."},
+    {q:"12.4 ÷ 4 = ?", options:["3.1","3.01","31","3.4"], answer:0,
+     why:"12.4 ÷ 4 = 3.1."},
+    {q:"Round 5.678 to 2 decimal places.", options:["5.68","5.67","5.70","5.60"], answer:0,
+     why:"The next digit is 8, so round up: 5.68."},
+    {q:"0.3 × 0.3 = ?", options:["0.09","0.9","0.6","0.06"], answer:0,
+     why:"3×3=9, two decimal places → 0.09."},
+  ]},
+  { name:"Ratio & Proportion", color:"#1d7874", questions:[
+    {q:"Simplify the ratio 8 : 12.", options:["2 : 3","4 : 6","3 : 2","1 : 2"], answer:0,
+     why:"Divide both by 4: 2 : 3."},
+    {q:"Share $60 in the ratio 2 : 3. The smaller share is:", options:["$24","$36","$20","$30"], answer:0,
+     why:"5 parts = $60, 1 part = $12, 2 parts = $24."},
+    {q:"If 3 pens cost $18, what do 5 pens cost?", options:["$30","$25","$36","$27"], answer:0,
+     why:"1 pen = $6, so 5 pens = $30."},
+    {q:"Which is equivalent to 1 : 4?", options:["3 : 12","2 : 6","4 : 1","5 : 15"], answer:0,
+     why:"3 : 12 divides down to 1 : 4."},
+    {q:"A car travels 150 km in 3 hours. Its rate is:", options:["50 km/h","45 km/h","60 km/h","30 km/h"], answer:0,
+     why:"150 ÷ 3 = 50 km per hour."},
+    {q:"Simplify the ratio 15 : 25.", options:["3 : 5","5 : 3","15 : 25","1 : 2"], answer:0,
+     why:"Divide both by 5: 3 : 5."},
+    {q:"Share $48 in the ratio 1 : 3. The larger share is:", options:["$36","$12","$24","$16"], answer:0,
+     why:"4 parts = $48, 1 part = $12, 3 parts = $36."},
+    {q:"4 workers build a wall in 6 days. How long for 8 workers (same rate)?", options:["3 days","12 days","4 days","6 days"], answer:0,
+     why:"More workers, less time (inverse): 4×6 ÷ 8 = 3 days."},
+    {q:"Which ratio is equivalent to 2 : 5?", options:["6 : 15","4 : 9","2 : 10","5 : 2"], answer:0,
+     why:"Multiply both by 3: 6 : 15."},
+    {q:"Express 20 apples to 30 oranges as a ratio in simplest form.", options:["2 : 3","3 : 2","20 : 30","1 : 2"], answer:0,
+     why:"Divide both by 10: 2 : 3."},
+  ]},
+  { name:"Percentages", color:"#9d4edd", questions:[
+    {q:"Write 0.35 as a percent.", options:["3.5%","35%","350%","0.35%"], answer:1,
+     why:"Multiply by 100: 0.35 = 35%."},
+    {q:"Find 20% of 150.", options:["30","20","15","45"], answer:0,
+     why:"20% = 0.2, and 0.2 × 150 = 30."},
+    {q:"A $80 item is discounted 25%. New price?", options:["$60","$55","$65","$20"], answer:0,
+     why:"25% of 80 = 20; 80 − 20 = $60."},
+    {q:"Convert 3/5 to a percent.", options:["35%","53%","60%","30%"], answer:2,
+     why:"3/5 = 0.6 = 60%."},
+    {q:"A price rises from $50 to $60. Percent increase?", options:["10%","20%","16%","25%"], answer:1,
+     why:"Increase 10 on 50 = 10/50 = 20%."},
+    {q:"Find 10% of 250.", options:["25","20","30","15"], answer:0,
+     why:"10% = 0.1, and 0.1 × 250 = 25."},
+    {q:"Write 45% as a fraction in lowest terms.", options:["9/20","45/100","4/5","1/2"], answer:0,
+     why:"45/100 divides by 5 → 9/20."},
+    {q:"Increase $200 by 15%.", options:["$230","$215","$240","$185"], answer:0,
+     why:"15% of 200 = 30; 200 + 30 = $230."},
+    {q:"What percent is 15 of 60?", options:["25%","15%","30%","20%"], answer:0,
+     why:"15/60 = 1/4 = 25%."},
+    {q:"Convert 1/8 to a percent.", options:["12.5%","8%","18%","1.25%"], answer:0,
+     why:"1 ÷ 8 = 0.125 = 12.5%."},
+  ]},
+  { name:"Consumer Arithmetic", color:"#c9184a", questions:[
+    {q:"Cost $200, sold $250. Profit percent?", options:["25%","20%","50%","30%"], answer:0,
+     why:"Profit 50 on cost 200 = 50/200 = 25%."},
+    {q:"Simple interest on $500 at 4% for 1 year?", options:["$20","$40","$25","$54"], answer:0,
+     why:"I = PRT = 500 × 0.04 × 1 = $20."},
+    {q:"An item cost $120 and sold for $90. This is a:", options:["Loss of $30","Profit of $30","Loss of $20","Profit of $20"], answer:0,
+     why:"90 − 120 = −30, a $30 loss."},
+    {q:"Selling price $150 with 50% profit. Cost price?", options:["$100","$75","$120","$90"], answer:0,
+     why:"150 = cost × 1.5, so cost = $100."},
+    {q:"Simple interest on $1000 at 5% for 2 years?", options:["$100","$50","$150","$200"], answer:0,
+     why:"I = 1000 × 0.05 × 2 = $100."},
+    {q:"Cost $400, sold for $360. Loss percent?", options:["10%","40%","20%","15%"], answer:0,
+     why:"Loss 40 on cost 400 = 40/400 = 10%."},
+    {q:"Simple interest on $2 000 at 3% for 2 years?", options:["$120","$60","$100","$180"], answer:0,
+     why:"I = 2000 × 0.03 × 2 = $120."},
+    {q:"An item marked $500 has a 10% discount. Amount paid?", options:["$450","$490","$400","$550"], answer:0,
+     why:"10% of 500 = 50; 500 − 50 = $450."},
+    {q:"Profit of $50 on a cost of $250. Profit percent?", options:["20%","25%","50%","15%"], answer:0,
+     why:"50/250 = 1/5 = 20%."},
+    {q:"Simple interest on $800 at 5% for 3 years?", options:["$120","$40","$240","$100"], answer:0,
+     why:"I = 800 × 0.05 × 3 = $120."},
+  ]},
+];
+
+const POINTS = [100,200,300,300,200,100,200,300,100]; // per wedge, index-matched-ish (recomputed below)
+
+/* ============================================================
+   VARIABLE-BASED QUESTIONS  (auto-generated with random values)
+   Each item below is a FUNCTION that returns a fresh question
+   every time it is picked, so students rarely see the same
+   numbers twice. To add your own: copy a template and change
+   the maths. build(question, correctValue, [wrongCandidates], why, format)
+   handles shuffling and marking the right answer automatically.
+   ============================================================ */
+/* GEN-START */
+function rint(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function gcd(x,y){x=Math.abs(x);y=Math.abs(y);return y?gcd(y,x%y):x;}
+const money=x=>(x<0?'-$'+Math.abs(x):'$'+x);
+function build(qText, correct, candidates, why, fmt){
+  fmt = fmt || (x=>String(x));
+  const vals=[correct];
+  for(const d of candidates){ if(!vals.some(v=>v===d)) vals.push(d); if(vals.length>=4) break; }
+  let pad=1;
+  while(vals.length<4){ const c=(typeof correct==='number')?correct+pad*7:correct+' '+pad; if(!vals.includes(c)) vals.push(c); pad++; }
+  shuffle(vals);
+  return {q:qText, options:vals.map(fmt), answer:vals.findIndex(v=>v===correct), why};
+}
+function byName(n){ return TOPICS.find(t=>t.name===n); }
+
+// ---- Basic Operations ----
+byName("Basic Operations").questions.push(
+  ()=>{const a=rint(120,899),b=rint(120,899),s=a+b;
+    return build(`${a} + ${b} = ?`, s, [s+10,s-10,s+100,s-100], `${a} + ${b} = ${s}.`);},
+  ()=>{const a=rint(12,29),b=rint(3,9),p=a*b;
+    return build(`${a} × ${b} = ?`, p, [p+a,p-b,p+10,p-10], `${a} × ${b} = ${p}.`);},
+  ()=>{const b=rint(3,9),q=rint(21,98),a=b*q;
+    return build(`${a} ÷ ${b} = ?`, q, [q+1,q-1,q+10,q+2], `${b} × ${q} = ${a}, so ${a} ÷ ${b} = ${q}.`);},
+  ()=>{const a=rint(500,999),b=rint(120,499),d=a-b;
+    return build(`${a} − ${b} = ?`, d, [d+10,d-10,d+100,d-1], `${a} − ${b} = ${d}.`);},
+  ()=>{const n=rint(6,20),per=rint(12,30),t=n*per;
+    return build(`A box holds ${per} items. How many in ${n} boxes?`, t, [t+per,t-per,t+10,t-10], `${per} × ${n} = ${t}.`);}
+);
+
+// ---- Order of Ops ----
+byName("Order of Ops").questions.push(
+  ()=>{const a=rint(2,9),b=rint(2,6),c=rint(2,6),r=a+b*c;
+    return build(`Evaluate: ${a} + ${b} × ${c}`, r, [(a+b)*c, a+b+c, a*b+c, r+1], `Multiply first: ${b}×${c}=${b*c}, then ${a}+${b*c} = ${r}.`);},
+  ()=>{const a=rint(3,9),b=rint(2,8),c=rint(2,6),r=(a+b)*c;
+    return build(`Evaluate: (${a} + ${b}) × ${c}`, r, [a+b*c, a+b+c, a*c+b, r+2], `Brackets first: ${a}+${b}=${a+b}, then ×${c} = ${r}.`);},
+  ()=>{const a=rint(3,9),b=rint(2,6),c=rint(1,9),r=a*b-c;
+    return build(`Evaluate: ${a} × ${b} − ${c}`, r, [a*(b-c), a*b+c, (a-c)*b, r+1], `Multiply first: ${a}×${b}=${a*b}, then −${c} = ${r}.`);}
+);
+
+// ---- Directed Numbers ----
+byName("Directed Numbers").questions.push(
+  ()=>{const x=-rint(1,9),y=rint(1,12),r=x+y;
+    return build(`(${x}) + (+${y}) = ?`, r, [x-y, -r, y-x, r+2], `Start at ${x}, move up ${y} → ${r}.`);},
+  ()=>{const x=-rint(1,9),y=-rint(1,9),r=x-y;
+    return build(`(${x}) − (${y}) = ?`, r, [x+y, -r, y-x, r+1], `Subtracting a negative adds: ${x} + ${-y} = ${r}.`);},
+  ()=>{const a=rint(2,9),b=rint(2,9),r=a*b;
+    return build(`(−${a}) × (−${b}) = ?`, r, [-r, a+b, -(a+b), r-1], `Negative × negative = positive: ${a}×${b} = ${r}.`);},
+  ()=>{const a=rint(2,9),b=rint(2,9),r=-(a*b);
+    return build(`(−${a}) × (+${b}) = ?`, r, [-r, a-b, b-a, r-1], `Negative × positive = negative: −${a*b}.`);}
+);
+
+// ---- Decimals ----
+byName("Decimals").questions.push(
+  ()=>{const a=rint(11,89)/10, b=rint(11,89)/10, r=Math.round((a+b)*10)/10;
+    return build(`${a.toFixed(1)} + ${b.toFixed(1)} = ?`, r.toFixed(1),
+      [(r+0.1).toFixed(1),(r-0.1).toFixed(1),(r+1).toFixed(1),(r-1).toFixed(1)],
+      `Line up the decimals: ${a.toFixed(1)} + ${b.toFixed(1)} = ${r.toFixed(1)}.`);},
+  ()=>{const a=rint(2,9), b=rint(2,9), r=(a*b)/100;
+    return build(`0.${a} × 0.${b} = ?`, r.toFixed(2),
+      [(a*b/10).toFixed(2),(a*b).toString(),(r+0.1).toFixed(2),(r+0.01).toFixed(2)],
+      `${a}×${b}=${a*b}, with two decimal places → ${r.toFixed(2)}.`);}
+);
+
+// ---- Percentages ----
+byName("Percentages").questions.push(
+  ()=>{const p=[10,20,25,50][rint(0,3)]; const N=[20,40,60,80,120,200,400][rint(0,6)]; const r=N*p/100;
+    return build(`Find ${p}% of ${N}.`, r, [2*r, r+5, r-5, r+10], `${p}% = ${p/100}, and ${p/100} × ${N} = ${r}.`);},
+  ()=>{const p=[10,20,25,50][rint(0,3)]; const N=[200,300,400,600,800][rint(0,4)]; const inc=N*p/100; const r=N+inc;
+    return build(`Increase ${N} by ${p}%.`, r, [N-inc, N+2*inc, inc, N], `${p}% of ${N} = ${inc}; ${N}+${inc} = ${r}.`);},
+  ()=>{const whole=[40,50,60,80,100][rint(0,4)]; const frac=[10,20,25,50][rint(0,3)]; const part=whole*frac/100;
+    return build(`What percent is ${part} of ${whole}?`, frac, [frac+10, frac-5, frac*2, frac+5], `${part}/${whole} = ${frac}%.`, x=>x+'%');}
+);
+
+// ---- Consumer Arithmetic ----
+byName("Consumer Arithmetic").questions.push(
+  ()=>{const P=[400,500,600,800,1000,2000][rint(0,5)]; const R=[2,3,4,5,10][rint(0,4)]; const T=rint(1,3); const I=P*R*T/100;
+    return build(`Simple interest on $${P} at ${R}% for ${T} year(s)?`, money(I),
+      [money(2*I),money(I+10),money(I-10),money(I+20)],
+      `I = PRT = ${P} × ${R/100} × ${T} = $${I}.`);},
+  ()=>{const cost=[200,300,400,500,600][rint(0,4)]; const pct=[10,20,25,50][rint(0,3)]; const profit=cost*pct/100; const sell=cost+profit;
+    return build(`Cost $${cost}, sold for $${sell}. Profit percent?`, pct,
+      [pct+10, pct-5, pct*2, pct+5], `Profit ${profit} on cost ${cost} = ${pct}%.`, x=>x+'%');},
+  ()=>{const marked=[300,400,500,600,800][rint(0,4)]; const disc=[10,20,25,50][rint(0,3)]; const off=marked*disc/100; const pay=marked-off;
+    return build(`An item marked $${marked} has a ${disc}% discount. Amount paid?`, money(pay),
+      [money(marked+off),money(off),money(pay-off),money(marked)],
+      `${disc}% of ${marked} = ${off}; ${marked}−${off} = ${pay}.`);}
+);
+
+// ---- Ratio & Proportion ----
+byName("Ratio & Proportion").questions.push(
+  ()=>{const a=rint(1,4), b=a+rint(1,4), k=rint(2,6); const g=gcd(a,b); const sa=a/g, sb=b/g; const A=a*k, B=b*k;
+    return build(`Simplify the ratio ${A} : ${B}.`, `${sa} : ${sb}`,
+      [`${sb} : ${sa}`,`${A} : ${B}`,`${sa} : ${sb+1}`,`${sa+1} : ${sb}`],
+      `Divide both parts by ${gcd(A,B)}: ${sa} : ${sb}.`);},
+  ()=>{const m=rint(1,2), n=m+rint(1,3), unit=rint(4,15); const T=(m+n)*unit; const larger=n*unit, smaller=m*unit;
+    return build(`Share $${T} in the ratio ${m} : ${n}. The larger share is:`, money(larger),
+      [money(smaller),money(T),money(larger+unit),money(larger-unit),money(larger+2*unit)],
+      `${m+n} parts = $${T}, so 1 part = $${unit}; ${n} parts = $${larger}.`);}
+);
+/* GEN-END */
+
+/* ---------- Build wheel SVG ---------- */
+const wheel = document.getElementById('wheel');
+const N = TOPICS.length;
+const cx=200, cy=200, r=200;
+function polar(cx,cy,r,deg){const a=(deg-90)*Math.PI/180;return[cx+r*Math.cos(a),cy+r*Math.sin(a)];}
+function wedgePath(i){
+  const a0=i*(360/N), a1=(i+1)*(360/N);
+  const [x0,y0]=polar(cx,cy,r,a0), [x1,y1]=polar(cx,cy,r,a1);
+  return `M${cx},${cy} L${x0},${y0} A${r},${r} 0 0,1 ${x1},${y1} Z`;
+}
+TOPICS.forEach((t,i)=>{
+  const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+  p.setAttribute('d',wedgePath(i)); p.setAttribute('fill',t.color);
+  p.setAttribute('stroke','#12093a'); p.setAttribute('stroke-width','2');
+  wheel.appendChild(p);
+  // label
+  const mid=(i+0.5)*(360/N);
+  const [lx,ly]=polar(cx,cy,r*0.62,mid);
+  const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
+  txt.setAttribute('x',lx); txt.setAttribute('y',ly);
+  txt.setAttribute('fill','#fff'); txt.setAttribute('font-size','13');
+  txt.setAttribute('font-weight','700'); txt.setAttribute('text-anchor','middle');
+  txt.setAttribute('transform',`rotate(${mid} ${lx} ${ly})`);
+  // wrap words
+  const words=t.name.split(' ');
+  words.forEach((w,k)=>{
+    const ts=document.createElementNS('http://www.w3.org/2000/svg','tspan');
+    ts.setAttribute('x',lx); ts.setAttribute('dy',k===0?0:14); ts.textContent=w;
+    txt.appendChild(ts);
+  });
+  wheel.appendChild(txt);
+});
+
+/* ---------- Game state ---------- */
+let teams=[], turn=0, spinning=false, currentAngle=0, answered=0;
+const COLORS=["#ffd23f","#4cc9f0","#f72585","#80ed99"];
+
+const spinBtn=document.getElementById('spinBtn');
+const hub=document.getElementById('hub');
+const teamsEl=document.getElementById('teams');
+const turnNote=document.getElementById('turnNote');
+const progressEl=document.getElementById('progress');
+
+/* ---------- Setup ---------- */
+const setupOverlay=document.getElementById('setupOverlay');
+const numTeams=document.getElementById('numTeams');
+const teamInputs=document.getElementById('teamInputs');
+function renderTeamInputs(){
+  const n=+numTeams.value; teamInputs.innerHTML='';
+  for(let i=0;i<n;i++){
+    const inp=document.createElement('input');
+    inp.value=`Team ${i+1}`; inp.id='tn'+i; teamInputs.appendChild(inp);
+  }
+}
+numTeams.addEventListener('change',renderTeamInputs); renderTeamInputs();
+
+document.getElementById('startBtn').addEventListener('click',()=>{
+  const n=+numTeams.value; teams=[];
+  for(let i=0;i<n;i++){
+    teams.push({name:(document.getElementById('tn'+i).value||`Team ${i+1}`),score:0,color:COLORS[i%4]});
+  }
+  turn=0; answered=0;
+  setupOverlay.classList.remove('show');
+  renderScore();
+});
+
+function renderScore(){
+  teamsEl.innerHTML='';
+  teams.forEach((t,i)=>{
+    const d=document.createElement('div');
+    d.className='team'+(i===turn?' active':'');
+    d.innerHTML=`<span class="dot" style="background:${t.color}"></span>
+      <span class="name">${t.name}</span><span class="score">${t.score}</span>`;
+    teamsEl.appendChild(d);
+  });
+  turnNote.textContent = teams.length>1 ? `${teams[turn].name}, it's your turn — spin!` : 'Spin to test yourself!';
+  const total=TOPICS.length*TOPICS[0].questions.length;
+  progressEl.textContent=`Questions answered: ${answered}`;
+}
+
+/* ---------- Spin ---------- */
+function spin(){
+  if(spinning || !teams.length) return;
+  spinning=true; spinBtn.disabled=true;
+  const extra=360*4 + Math.random()*360;
+  currentAngle += extra;
+  wheel.style.transform=`rotate(${currentAngle}deg)`;
+  setTimeout(()=>{
+    const norm=(360 - (currentAngle%360))%360; // pointer at top
+    const idx=Math.floor(norm/(360/N))%N;
+    spinning=false;
+    askQuestion(idx);
+  },5100);
+}
+spinBtn.addEventListener('click',spin);
+hub.addEventListener('click',spin);
+
+/* ---------- Question flow ---------- */
+const qOverlay=document.getElementById('qOverlay');
+const qTopic=document.getElementById('qTopic');
+const qPoints=document.getElementById('qPoints');
+const qText=document.getElementById('qText');
+const qOptions=document.getElementById('qOptions');
+const qFeedback=document.getElementById('qFeedback');
+const nextBtn=document.getElementById('nextBtn');
+let pending=0;
+
+const PTS=[100,200,300];
+function askQuestion(idx){
+  const topic=TOPICS[idx];
+  const raw=topic.questions[Math.floor(Math.random()*topic.questions.length)];
+  const q=(typeof raw==='function')?raw():raw;   // resolve variable-based questions
+  pending=PTS[Math.floor(Math.random()*PTS.length)];
+  qTopic.textContent=topic.name; qTopic.style.background=topic.color;
+  qPoints.textContent='+'+pending;
+  qText.textContent=q.q;
+  qOptions.innerHTML=''; qFeedback.textContent=''; qFeedback.className='feedback';
+  nextBtn.classList.remove('show');
+  q.options.forEach((opt,i)=>{
+    const b=document.createElement('button');
+    b.className='opt'; b.textContent=opt;
+    b.addEventListener('click',()=>choose(b,i,q));
+    qOptions.appendChild(b);
+  });
+  qOverlay.classList.add('show');
+}
+function choose(btn,i,q){
+  [...qOptions.children].forEach(b=>b.disabled=true);
+  answered++;
+  if(i===q.answer){
+    btn.classList.add('correct');
+    if(teams.length) teams[turn].score+=pending;
+    qFeedback.className='feedback good';
+    qFeedback.textContent=`✔ Correct! +${pending} points. ${q.why}`;
+  }else{
+    btn.classList.add('wrong');
+    qOptions.children[q.answer].classList.add('correct');
+    qFeedback.className='feedback bad';
+    qFeedback.textContent=`✘ Not quite. ${q.why}`;
+  }
+  nextBtn.classList.add('show');
+}
+nextBtn.addEventListener('click',()=>{
+  qOverlay.classList.remove('show');
+  spinBtn.disabled=false;
+  if(teams.length>1) turn=(turn+1)%teams.length;
+  renderScore();
+});
+
+/* ---------- Controls ---------- */
+document.getElementById('skipBtn').addEventListener('click',()=>{
+  if(spinning||!teams.length) return;
+  if(teams.length>1) turn=(turn+1)%teams.length;
+  renderScore();
+});
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  setupOverlay.classList.add('show');
+});
+</script>
+</body>
+</html>
